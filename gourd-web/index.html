@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gourd Web - HTMX Hello World</title>
+    <!-- Include HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.2"></script>
+</head>
+<body>
+    <h1>Gourd Web - HTMX Hello World</h1>
+
+    <div id="message">
+        <!-- This will be replaced by HTMX -->
+        Click the button to see a message.
+    </div>
+
+    <!-- Button to trigger HTMX request -->
+    <button hx-get="/hello" hx-target="#message">
+        Click Me!
+    </button>
+
+</body>
+</html>
