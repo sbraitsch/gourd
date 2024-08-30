@@ -1,0 +1,20 @@
+package views
+
+import(
+    "gourd/internal/storage"
+    "encoding/json"
+)
+
+func stringify(session storage.Session) string {
+    jsonData, err := json.MarshalIndent(session, "", "  ")
+    if err != nil {
+        return "Marshalling Error"
+    }
+    return string(jsonData)
+}
+
+templ List(items []storage.Session) {
+    for _, item := range items {
+        <pre>{ stringify(item) } </pre>
+    }
+}

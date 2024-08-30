@@ -1,26 +1,22 @@
-package main
+package storage
 
 import (
-  _ "github.com/lib/pq"
+	"database/sql"
+	"fmt"
+	"github.com/google/uuid"
+	_ "github.com/lib/pq"
+	"log"
 )
 
 // Database configuration constants
 const (
-	DB_USER     = "yourusername"
-	DB_PASSWORD = "yourpassword"
-	DB_NAME     = "yourdbname"
+	DB_USER     = "local"
+	DB_PASSWORD = "pwd"
+	DB_NAME     = "gourd_db"
 	DB_HOST     = "localhost"
 	DB_PORT     = 5432
 )
 
-// Person struct represents a person in the database
-type Person struct {
-	ID    int
-	Name  string
-	Email string
-}
-
-// ConnectDB initializes a connection to the PostgreSQL database
 func ConnectDB() *sql.DB {
 	// Formulate the connection string
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
@@ -47,10 +43,15 @@ func ConnectDB() *sql.DB {
 func CreateTable(db *sql.DB) {
 	// SQL statement to create the "people" table
 	createTableSQL := `
-	CREATE TABLE IF NOT EXISTS people (
-		id SERIAL PRIMARY KEY,
-		name TEXT,
-		email TEXT UNIQUE NOT NULL
+	CREATE TABLE IF NOT EXISTS sessions (
+		id uuid PRIMARY KEY,
+		firstname varchar(255) NOT NULL,
+		lastname varchar(255) NOT NULL,
+		token uuid NOT NULL,
+	    step integer DEFAULT 0,
+		started timestamp DEFAULT CURRENT_TIMESTAMP,
+		submitted timestamp,
+		time_limit integer NOT NULL
 	);`
 
 	// Execute the SQL statement
@@ -62,29 +63,26 @@ func CreateTable(db *sql.DB) {
 	fmt.Println("Table created successfully or already exists.")
 }
 
-// InsertPerson inserts a new person into the "people" table
-func InsertPerson(db *sql.DB, name, email string) {
+func CreateSession(db *sql.DB, firstname string, lastname string, timelimit int64) uuid.UUID {
 	// SQL statement to insert a new person
 	insertSQL := `
-	INSERT INTO people (name, email)
-	VALUES ($1, $2)
+	INSERT INTO sessions (id, firstname, lastname, token, time_limit)
+	VALUES ($1, $2, $3, $4, $5)
 	RETURNING id;`
 
-	// Execute the SQL statement and get the new ID
-	var id int
-	err := db.QueryRow(insertSQL, name, email).Scan(&id)
+	id := uuid.New()
+	token := uuid.New()
+	err := db.QueryRow(insertSQL, id, firstname, lastname, token, timelimit).Scan(&id)
 	if err != nil {
-		log.Fatal("Error inserting person: ", err)
+		log.Fatal("Error inserting session: ", err)
 	}
 
-	fmt.Printf("Person inserted successfully with ID %d\n", id)
+	fmt.Printf("Session inserted successfully with ID %d\n", id)
+	return token
 }
 
-// GetPeople retrieves all people from the "people" table
-func GetPeople(db *sql.DB) ([]Person, error) {
-	// SQL statement to select all people
-	selectSQL := `
-	SELECT id, name, email FROM people;`
+func GetSessions(db *sql.DB) ([]Session, error) {
+	selectSQL := `SELECT * FROM sessions;`
 
 	// Execute the SQL statement
 	rows, err := db.Query(selectSQL)
@@ -94,16 +92,16 @@ func GetPeople(db *sql.DB) ([]Person, error) {
 	defer rows.Close()
 
 	// Prepare a slice to hold the results
-	var people []Person
+	var sessions []Session
 
 	// Iterate through the result set
 	for rows.Next() {
-		var person Person
-		err := rows.Scan(&person.ID, &person.Name, &person.Email)
+		var session Session
+		err := rows.Scan(&session.ID, &session.Firstname, &session.Lastname, &session.Token, &session.Step, &session.Started, &session.Submitted, &session.Timelimit)
 		if err != nil {
 			return nil, err
 		}
-		people = append(people, person)
+		sessions = append(sessions, session)
 	}
 
 	// Check for errors from the row iteration
@@ -111,6 +109,5 @@ func GetPeople(db *sql.DB) ([]Person, error) {
 		return nil, err
 	}
 
-	return people, nil
+	return sessions, nil
 }
-
