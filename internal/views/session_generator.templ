@@ -1,0 +1,20 @@
+package views
+
+templ SessionGenerator() {
+    <div class="overlay">
+        <div class="popup">
+            <h2>Generate a Session Token</h2>
+                <form hx-post="/admin/generate">
+                    <input name="firstname" type="text" class="token-input" placeholder="Candidate's first name"/>
+                    <input name="lastname" type="text" class="token-input" placeholder="Candidate's last name"/>
+                    <input name="timelimit" type="number" class="token-input" placeholder="Time limit" value="30"/>
+                    <label for="repo">Choose a Repository:</label>
+                    <select id="repo" name="Repositories">
+                        <option value="sbraitsch/gourd_example">sbraitsch/gourd_example</option>
+                        <option value="someother/example">someother/example</option>
+                    </select>
+                    <button class="token-submit-btn" type="submit">Generate</button>
+                </form>
+        </div>
+    </div>
+}

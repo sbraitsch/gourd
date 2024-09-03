@@ -23,23 +23,30 @@ func main() {
 	protectedRouter := chi.NewRouter()
 	protectedRouter.Use(gourdMW.LoginMiddleware)
 
+	adminRouter := chi.NewRouter()
+	adminRouter.Use(gourdMW.LoginMiddleware)
+
 	fs := http.FileServer(http.Dir("static"))
 	router.Handle("/static/*", http.StripPrefix("/static/", fs))
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "internal/views/index.html")
 	})
-
-	router.Get("/admin", func(w http.ResponseWriter, r *http.Request) {
+	router.Get("/internal", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "internal/views/admin.html")
 	})
 
 	router.Post("/login", api.LoginHandler)
+	router.Post("/janitor", api.AdminLoginHandler)
+	router.Get("/clone", api.CloneHandler)
 
 	protectedRouter.Get("/sessions", api.GetSessionsHandler)
-	protectedRouter.Post("/sessions", api.AddSessionHandler)
+
+	adminRouter.Get("/generator", api.SessionGeneratorHandler)
+	adminRouter.Post("/generate", api.GenerateSessionHandler)
 
 	router.Mount("/api", protectedRouter)
+	router.Mount("/admin", adminRouter)
 
 	fmt.Println("Starting server at port 8080...")
 	http.ListenAndServe(":8080", router)

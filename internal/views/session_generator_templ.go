@@ -8,7 +8,7 @@ package views
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func LoginOverlay(admin bool) templ.Component {
+func SessionGenerator() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -26,22 +26,7 @@ func LoginOverlay(admin bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"overlay\"><div class=\"popup\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if admin {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h2>Enter Your Admin Token</h2><form hx-post=\"/janitor\"><input name=\"token\" type=\"text\" class=\"token-input\" placeholder=\"Enter token here...\"> <button class=\"token-submit-btn\" type=\"submit\">Log In</button></form>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h2>Enter Your Session Token</h2><p class=\"info-text\">You should have received it in an E-Mail.</p><form hx-post=\"/login\"><input name=\"token\" type=\"text\" class=\"token-input\" placeholder=\"Enter token here...\"> <button class=\"token-submit-btn\" type=\"submit\">Log In</button></form>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"overlay\"><div class=\"popup\"><h2>Generate a Session Token</h2><form hx-post=\"/admin/generate\"><input name=\"firstname\" type=\"text\" class=\"token-input\" placeholder=\"Candidate&#39;s first name\"> <input name=\"lastname\" type=\"text\" class=\"token-input\" placeholder=\"Candidate&#39;s last name\"> <input name=\"timelimit\" type=\"number\" class=\"token-input\" placeholder=\"Time limit\" value=\"30\"> <label for=\"repo\">Choose a Repository:</label> <select id=\"repo\" name=\"Repositories\"><option value=\"sbraitsch/gourd_example\">sbraitsch/gourd_example</option> <option value=\"someother/example\">someother/example</option></select> <button class=\"token-submit-btn\" type=\"submit\">Generate</button></form></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

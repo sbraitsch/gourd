@@ -7,36 +7,30 @@ import (
 	"gourd/internal/views"
 	"log"
 	"net/http"
+	"strconv"
 )
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func SessionGeneratorHandler(w http.ResponseWriter, r *http.Request) {
+	views.SessionGenerator().Render(r.Context(), w)
+}
+
+func GenerateSessionHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
 		return
 	}
 
-	token := r.FormValue("token")
-
-	defer r.Body.Close()
-	cookie := &http.Cookie{
-		Name:     "Session",
-		Value:    token,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   3600 * 24 * 7,
+	firstname := r.FormValue("firstname")
+	lastname := r.FormValue("lastname")
+	timelimit, err := strconv.ParseInt(r.FormValue("timelimit"), 10, 64)
+	if err != nil {
+		log.Fatal("Someone managed to fuck up the time limit input.")
 	}
+	// repo := r.FormValue("repo")
 
-	w.Header().Set("HX-Trigger", "content-refresh")
-	http.SetCookie(w, cookie)
-	_, _ = fmt.Fprintf(w, token)
-}
-
-func AddSessionHandler(w http.ResponseWriter, r *http.Request) {
 	dbConn := gourdMW.GetDBFromContext(r.Context())
-	token := storage.CreateSession(dbConn, "John", "Doe", 30)
+	token := storage.CreateSession(dbConn, firstname, lastname, timelimit)
 	w.Header().Set("HX-Trigger", "content-refresh")
 	_, _ = fmt.Fprintf(w, token.String())
 }

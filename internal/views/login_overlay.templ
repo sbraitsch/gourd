@@ -1,14 +1,22 @@
 package views
 
-templ LoginOverlay() {
+templ LoginOverlay(admin bool) {
     <div class="overlay">
         <div class="popup">
-            <h2>Enter Your Session Token</h2>
-            <p class="info-text">You should have received it in an E-Mail.</p>
-            <form hx-post="/login">
-                <input name="token" type="text" class="token-input" placeholder="Enter token here..."/>
-                <button class="token-submit-btn" type="submit">Log In</button>
-            </form>
+            if admin {
+                <h2>Enter Your Admin Token</h2>
+                <form hx-post="/janitor">
+                    <input name="token" type="text" class="token-input" placeholder="Enter token here..."/>
+                    <button class="token-submit-btn" type="submit">Log In</button>
+                </form>
+            } else {
+                <h2>Enter Your Session Token</h2>
+                <p class="info-text">You should have received it in an E-Mail.</p>
+                <form hx-post="/login">
+                    <input name="token" type="text" class="token-input" placeholder="Enter token here..."/>
+                    <button class="token-submit-btn" type="submit">Log In</button>
+                </form>
+            }
         </div>
     </div>
 }

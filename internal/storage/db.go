@@ -47,7 +47,6 @@ func CreateTable(db *sql.DB) {
 		id uuid PRIMARY KEY,
 		firstname varchar(255) NOT NULL,
 		lastname varchar(255) NOT NULL,
-		token uuid NOT NULL,
 	    step integer DEFAULT 0,
 		started timestamp DEFAULT CURRENT_TIMESTAMP,
 		submitted timestamp,
@@ -66,19 +65,18 @@ func CreateTable(db *sql.DB) {
 func CreateSession(db *sql.DB, firstname string, lastname string, timelimit int64) uuid.UUID {
 	// SQL statement to insert a new person
 	insertSQL := `
-	INSERT INTO sessions (id, firstname, lastname, token, time_limit)
-	VALUES ($1, $2, $3, $4, $5)
+	INSERT INTO sessions (id, firstname, lastname, time_limit)
+	VALUES ($1, $2, $3, $4)
 	RETURNING id;`
 
 	id := uuid.New()
-	token := uuid.New()
-	err := db.QueryRow(insertSQL, id, firstname, lastname, token, timelimit).Scan(&id)
+	err := db.QueryRow(insertSQL, id, firstname, lastname, timelimit).Scan(&id)
 	if err != nil {
 		log.Fatal("Error inserting session: ", err)
 	}
 
 	fmt.Printf("Session inserted successfully with ID %d\n", id)
-	return token
+	return id
 }
 
 func GetSessions(db *sql.DB) ([]Session, error) {
@@ -97,7 +95,7 @@ func GetSessions(db *sql.DB) ([]Session, error) {
 	// Iterate through the result set
 	for rows.Next() {
 		var session Session
-		err := rows.Scan(&session.ID, &session.Firstname, &session.Lastname, &session.Token, &session.Step, &session.Started, &session.Submitted, &session.Timelimit)
+		err := rows.Scan(&session.ID, &session.Firstname, &session.Lastname, &session.Step, &session.Started, &session.Submitted, &session.Timelimit)
 		if err != nil {
 			return nil, err
 		}
@@ -110,4 +108,18 @@ func GetSessions(db *sql.DB) ([]Session, error) {
 	}
 
 	return sessions, nil
+}
+
+func GetSession(db *sql.DB, token string) (Session, error) {
+	selectSQL := `SELECT * FROM sessions WHERE id = $1;`
+
+	var session Session
+	row := db.QueryRow(selectSQL, token)
+
+	err := row.Scan(&session.ID, &session.Firstname, &session.Lastname, &session.Step, &session.Started, &session.Submitted, &session.Timelimit)
+	if err != nil {
+		return session, err
+	}
+
+	return session, nil
 }
