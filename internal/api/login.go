@@ -54,6 +54,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeCookies(session.ID.String(), false, w)
+	fmt.Fprint(w, "Login successful")
 }
 
 func AdminLoginHandler(w http.ResponseWriter, r *http.Request) {

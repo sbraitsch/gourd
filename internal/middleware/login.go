@@ -12,7 +12,7 @@ const tokenContextKey contextKey = "token"
 
 func LoginMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("Session")
+		cookie, err := r.Cookie("token")
 
 		if err != nil {
 			if errors.Is(err, http.ErrNoCookie) {
