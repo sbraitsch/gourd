@@ -1,0 +1,14 @@
+package views
+
+templ LoginOverlay() {
+    <div class="overlay">
+        <div class="popup">
+            <h2>Enter Your Session Token</h2>
+            <p class="info-text">You should have received it in an E-Mail.</p>
+            <form hx-post="/login">
+                <input name="token" type="text" class="token-input" placeholder="Enter token here..."/>
+                <button class="token-submit-btn" type="submit">Log In</button>
+            </form>
+        </div>
+    </div>
+}

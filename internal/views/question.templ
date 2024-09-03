@@ -1,0 +1,15 @@
+package views
+
+templ Question() {
+    <h2>General question text...</h2>
+    <textarea id="code-editor">\/\/getstarted</textarea>
+    <button hx-post="/api/submit">Submit</button>
+    <script>
+        let editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+            mode: "javascript", // Set the language mode
+            theme: "dracula",   // Set the theme
+            lineNumbers: true,  // Show line numbers
+            matchBrackets: true // Highlight matching brackets
+        });
+    </script>
+}

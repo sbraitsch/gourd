@@ -3,36 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gourd - Built with chi + HTMX</title>
+    <title>Logo PH</title>
     <script src="https://unpkg.com/htmx.org@1.9.2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.8/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.8/theme/dracula.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.8/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.8/mode/javascript/javascript.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/global.css">
 </head>
 <body>
-    <h1>Gourd - Built with chi + HTMX</h1>
-
+    <div id="content"></div>
     <div id="sessions"
-         hx-get="/sessions"
-         hx-trigger="load, list-refresh from:body"
-         hx-target="#sessions",
-         hx-swap="innerHTML">
+         hx-get="/api/sessions"
+         hx-trigger="load, content-refresh from:body"
+         hx-target="#content">
     </div>
-    <button hx-post="/sessions" hx-target="#token">
-        Create new Session
-    </button>
-    <p id="token"></p>
-
-    <textarea id="code-editor">// get started</textarea>
-
-    <script>
-        let editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
-            mode: "javascript", // Set the language mode
-            theme: "dracula",   // Set the theme
-            lineNumbers: true,  // Show line numbers
-            matchBrackets: true // Highlight matching brackets
-        });
-    </script>
 </body>
 </html>

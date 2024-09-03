@@ -17,4 +17,8 @@ templ List(items []storage.Session) {
     for _, item := range items {
         <pre>{ stringify(item) } </pre>
     }
+    <button hx-post="/api/sessions" hx-target="#token">
+        Create new Session
+    </button>
+    <p id="token"></p>
 }
