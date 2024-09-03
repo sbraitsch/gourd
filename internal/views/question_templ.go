@@ -8,7 +8,9 @@ package views
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func Question() templ.Component {
+const ph = "//get started"
+
+func Question(intro templ.Component) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -26,7 +28,24 @@ func Question() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h2>General question text...</h2><textarea id=\"code-editor\">\\/\\/getstarted</textarea> <button hx-post=\"/api/submit\">Submit</button><script>\n        let editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {\n            mode: \"javascript\", // Set the language mode\n            theme: \"dracula\",   // Set the theme\n            lineNumbers: true,  // Show line numbers\n            matchBrackets: true // Highlight matching brackets\n        });\n    </script>")
+		templ_7745c5c3_Err = intro.Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<textarea id=\"code-editor\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var2 string
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(ph)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/question.templ`, Line: 7, Col: 35}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</textarea> <button hx-post=\"/api/submit\">Submit</button><script>\n        let editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {\n            mode: \"javascript\", // Set the language mode\n            theme: \"dracula\",   // Set the theme\n            lineNumbers: true,  // Show line numbers\n            matchBrackets: true // Highlight matching brackets\n        });\n    </script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

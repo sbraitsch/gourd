@@ -40,8 +40,9 @@ func main() {
 	router.Post("/janitor", api.AdminLoginHandler)
 	router.Get("/clone", api.CloneHandler)
 
-	protectedRouter.Get("/sessions", api.GetSessionsHandler)
+	protectedRouter.Get("/questions", api.QuestionHandler)
 
+	adminRouter.Get("/sessions", api.GetSessionsHandler)
 	adminRouter.Get("/generator", api.SessionGeneratorHandler)
 	adminRouter.Post("/generate", api.GenerateSessionHandler)
 

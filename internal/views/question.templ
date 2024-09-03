@@ -1,8 +1,10 @@
 package views
 
-templ Question() {
-    <h2>General question text...</h2>
-    <textarea id="code-editor">\/\/getstarted</textarea>
+const ph = "//get started"
+
+templ Question(intro templ.Component) {
+    @intro
+    <textarea id="code-editor">{ ph }</textarea>
     <button hx-post="/api/submit">Submit</button>
     <script>
         let editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {

@@ -39,9 +39,7 @@ func ConnectDB() *sql.DB {
 	return db
 }
 
-// CreateTable creates the "people" table if it does not exist
 func CreateTable(db *sql.DB) {
-	// SQL statement to create the "people" table
 	createTableSQL := `
 	CREATE TABLE IF NOT EXISTS sessions (
 		id uuid PRIMARY KEY,
@@ -56,10 +54,37 @@ func CreateTable(db *sql.DB) {
 	// Execute the SQL statement
 	_, err := db.Exec(createTableSQL)
 	if err != nil {
-		log.Fatal("Error creating table: ", err)
+		log.Fatal("Error creating session table: ", err)
 	}
 
-	fmt.Println("Table created successfully or already exists.")
+	createAdminTable := `
+	CREATE TABLE IF NOT EXISTS admins (
+		id uuid PRIMARY KEY
+	);`
+
+	// Execute the SQL statement
+	_, err = db.Exec(createAdminTable)
+	if err != nil {
+		log.Fatal("Error creating admin table: ", err)
+	}
+
+	var count int
+	query := "SELECT COUNT(*) FROM admins"
+	err = db.QueryRow(query).Scan(&count)
+	if err != nil {
+		fmt.Printf("error checking user count: %v\n", err)
+	}
+	if count == 0 {
+		insertAdmin := `INSERT INTO admins(id) VALUES ($1) RETURNING id;`
+		id := uuid.New()
+		err = db.QueryRow(insertAdmin, id).Scan(&id)
+		if err != nil {
+			log.Fatal("Error inserting admin: ", err)
+		}
+		fmt.Printf("Created admin token: %v\n", id)
+	}
+
+	fmt.Println("Table(s) created successfully or already existed.")
 }
 
 func CreateSession(db *sql.DB, firstname string, lastname string, timelimit int64) uuid.UUID {
@@ -89,10 +114,8 @@ func GetSessions(db *sql.DB) ([]Session, error) {
 	}
 	defer rows.Close()
 
-	// Prepare a slice to hold the results
 	var sessions []Session
 
-	// Iterate through the result set
 	for rows.Next() {
 		var session Session
 		err := rows.Scan(&session.ID, &session.Firstname, &session.Lastname, &session.Step, &session.Started, &session.Submitted, &session.Timelimit)
@@ -102,7 +125,6 @@ func GetSessions(db *sql.DB) ([]Session, error) {
 		sessions = append(sessions, session)
 	}
 
-	// Check for errors from the row iteration
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
@@ -122,4 +144,18 @@ func GetSession(db *sql.DB, token string) (Session, error) {
 	}
 
 	return session, nil
+}
+
+func CheckAdminStatus(db *sql.DB, token string) (bool, error) {
+	selectSQL := `SELECT * FROM admins WHERE id = $1;`
+
+	var admin string
+	row := db.QueryRow(selectSQL, token)
+
+	err := row.Scan(&admin)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

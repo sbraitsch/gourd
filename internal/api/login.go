@@ -1,12 +1,39 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	gourdMW "gourd/internal/middleware"
 	"gourd/internal/storage"
 	"net/http"
 )
+
+func writeCookies(token string, isAdmin bool, w http.ResponseWriter) {
+	cookie := &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteStrictMode,
+		MaxAge:   3600 * 24 * 7,
+	}
+
+	w.Header().Set("HX-Trigger", "content-refresh")
+	http.SetCookie(w, cookie)
+
+	if isAdmin {
+		adminCookie := &http.Cookie{
+			Name:     "isAdmin",
+			Value:    "true",
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   false,
+			SameSite: http.SameSiteStrictMode,
+			MaxAge:   3600 * 24 * 7,
+		}
+		http.SetCookie(w, adminCookie)
+	}
+}
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
@@ -26,25 +53,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie := &http.Cookie{
-		Name:     "Session",
-		Value:    token,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   3600 * 24 * 7,
-	}
-
-	w.Header().Set("HX-Trigger", "content-refresh")
-	http.SetCookie(w, cookie)
-
-	jsonData, err := json.MarshalIndent(session, "", "  ")
-	if err != nil {
-		http.Error(w, "Unable to marshal return value", http.StatusInternalServerError)
-		return
-	}
-	_, _ = fmt.Fprintf(w, string(jsonData))
+	writeCookies(session.ID.String(), false, w)
 }
 
 func AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,18 +65,14 @@ func AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	token := r.FormValue("token")
 
-	defer r.Body.Close()
-	cookie := &http.Cookie{
-		Name:     "Session",
-		Value:    token,
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteStrictMode,
-		MaxAge:   3600 * 24 * 7,
-	}
+	dbConn := gourdMW.GetDBFromContext(r.Context())
+	isAdmin, err := storage.CheckAdminStatus(dbConn, token)
 
-	w.Header().Set("HX-Trigger", "content-refresh")
-	http.SetCookie(w, cookie)
-	_, _ = fmt.Fprintf(w, token)
+	if !isAdmin {
+		fmt.Println(err)
+		http.Error(w, "Token not recognized", http.StatusNotFound)
+		return
+	}
+	defer r.Body.Close()
+	writeCookies(token, true, w)
 }
