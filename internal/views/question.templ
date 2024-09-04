@@ -2,6 +2,7 @@ package views
 
 import (
     "gourd/internal/storage"
+    "strconv"
 )
 
 const ph = "//get started"
@@ -11,7 +12,7 @@ templ Question(intro templ.Component, session storage.Session) {
         @intro
         <textarea id="code-editor">{ ph }</textarea>
         <button class="submit-btn" hx-post="/api/submit">Submit</button>
-        <p>Progress: { string(session.Step) }  /10</p>
+        <p>Progress: { strconv.Itoa(session.Step) }  /10</p>
         <script>
             let editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
                 mode: "javascript", // Set the language mode
