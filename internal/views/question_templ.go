@@ -8,9 +8,13 @@ package views
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import (
+	"gourd/internal/storage"
+)
+
 const ph = "//get started"
 
-func Question(intro templ.Component) templ.Component {
+func Question(intro templ.Component, session storage.Session) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -28,6 +32,10 @@ func Question(intro templ.Component) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"question\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		templ_7745c5c3_Err = intro.Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -39,13 +47,26 @@ func Question(intro templ.Component) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(ph)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/question.templ`, Line: 7, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/question.templ`, Line: 12, Col: 39}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</textarea> <button hx-post=\"/api/submit\">Submit</button><script>\n        let editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {\n            mode: \"javascript\", // Set the language mode\n            theme: \"dracula\",   // Set the theme\n            lineNumbers: true,  // Show line numbers\n            matchBrackets: true // Highlight matching brackets\n        });\n    </script>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</textarea> <button class=\"submit-btn\" hx-post=\"/api/submit\">Submit</button><p>Progress: ")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 string
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(string(session.Step))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/question.templ`, Line: 14, Col: 43}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" /10</p><script>\n            let editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {\n                mode: \"javascript\", // Set the language mode\n                theme: \"dracula\",   // Set the theme\n                lineNumbers: true,  // Show line numbers\n                matchBrackets: true // Highlight matching brackets\n            });\n        </script></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -3,9 +3,10 @@ package api
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"github.com/a-h/templ"
 	"github.com/yuin/goldmark"
+	"gourd/internal/middleware"
+	"gourd/internal/storage"
 	"gourd/internal/views"
 	"io"
 	"net/http"
@@ -13,19 +14,32 @@ import (
 )
 
 func QuestionHandler(w http.ResponseWriter, r *http.Request) {
+	intro, err := RenderQuestion()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	session, err := storage.GetSession(middleware.GetDBFromContext(r.Context()), middleware.GetTokenFromContext(r.Context()))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	views.Question(intro, session).Render(r.Context(), w)
+}
+
+func RenderQuestion() (templ.Component, error) {
 	filePath := "../gourd_example/question_01.md"
 
 	content, err := os.ReadFile(filePath)
 	if err != nil {
-		fmt.Printf("Error reading file: %v", err)
+		return nil, err
 	}
 
 	md := goldmark.New()
 
 	var buf bytes.Buffer
 	if err := md.Convert(content, &buf); err != nil {
-		http.Error(w, "Error rendering question source", http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 
 	intro := templ.ComponentFunc(func(ctx context.Context, w io.Writer) (err error) {
@@ -33,5 +47,5 @@ func QuestionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	})
 
-	views.Question(intro).Render(r.Context(), w)
+	return intro, nil
 }

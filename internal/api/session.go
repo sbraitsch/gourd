@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	gourdMW "gourd/internal/middleware"
 	"gourd/internal/storage"
 	"gourd/internal/views"
@@ -27,12 +26,12 @@ func GenerateSessionHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal("Someone managed to fuck up the time limit input.")
 	}
-	// repo := r.FormValue("repo")
+	repo := r.FormValue("repo")
 
 	dbConn := gourdMW.GetDBFromContext(r.Context())
-	token := storage.CreateSession(dbConn, firstname, lastname, timelimit)
-	w.Header().Set("HX-Trigger", "content-refresh")
-	_, _ = fmt.Fprintf(w, token.String())
+	userId := storage.CreateUser(dbConn, firstname, lastname, false)
+	token := storage.CreateSession(dbConn, userId, repo, timelimit)
+	views.GenerationResult(token.String()).Render(r.Context(), w)
 }
 
 func GetSessionsHandler(w http.ResponseWriter, r *http.Request) {

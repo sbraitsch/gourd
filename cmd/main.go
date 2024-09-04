@@ -21,10 +21,11 @@ func main() {
 	router.Use(gourdMW.DBMiddleware(db))
 
 	protectedRouter := chi.NewRouter()
-	protectedRouter.Use(gourdMW.LoginMiddleware)
+	protectedRouter.Use(gourdMW.AuthMiddleware)
 
 	adminRouter := chi.NewRouter()
-	adminRouter.Use(gourdMW.LoginMiddleware)
+	adminRouter.Use(gourdMW.AuthMiddleware)
+	adminRouter.Use(gourdMW.AdminMiddleware)
 
 	fs := http.FileServer(http.Dir("static"))
 	router.Handle("/static/*", http.StripPrefix("/static/", fs))
@@ -32,15 +33,12 @@ func main() {
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "internal/views/index.html")
 	})
-	router.Get("/internal", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "internal/views/admin.html")
-	})
 
 	router.Post("/login", api.LoginHandler)
-	router.Post("/janitor", api.AdminLoginHandler)
 	router.Get("/clone", api.CloneHandler)
 
 	protectedRouter.Get("/questions", api.QuestionHandler)
+	protectedRouter.Get("/content", api.ContentHandler)
 
 	adminRouter.Get("/sessions", api.GetSessionsHandler)
 	adminRouter.Get("/generator", api.SessionGeneratorHandler)

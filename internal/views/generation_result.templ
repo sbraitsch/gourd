@@ -1,0 +1,7 @@
+package views
+
+templ GenerationResult(token string) {
+    <h2>Generated Token</h2>
+    <h3 style="color: #2ece2e">{ token }</h3>
+    <button class="submit-btn" type="submit" hx-get="/admin/generator">Another one!</button>
+}

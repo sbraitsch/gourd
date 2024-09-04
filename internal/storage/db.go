@@ -40,62 +40,70 @@ func ConnectDB() *sql.DB {
 }
 
 func CreateTable(db *sql.DB) {
-	createTableSQL := `
-	CREATE TABLE IF NOT EXISTS sessions (
+	createUserTable := `
+	CREATE TABLE IF NOT EXISTS users (
 		id uuid PRIMARY KEY,
 		firstname varchar(255) NOT NULL,
 		lastname varchar(255) NOT NULL,
-	    step integer DEFAULT 0,
-		started timestamp DEFAULT CURRENT_TIMESTAMP,
-		submitted timestamp,
-		time_limit integer NOT NULL
+		is_admin boolean NOT NULL
 	);`
 
-	// Execute the SQL statement
-	_, err := db.Exec(createTableSQL)
+	_, err := db.Exec(createUserTable)
+	if err != nil {
+		log.Fatal("Error creating user table: ", err)
+	}
+
+	createSessionTable := `
+	CREATE TABLE IF NOT EXISTS sessions (
+		id uuid PRIMARY KEY,
+		user_id uuid NOT NULL,
+	    step integer DEFAULT 0,
+		repo varchar(255) NOT NULL,
+		started timestamp DEFAULT CURRENT_TIMESTAMP,
+		submitted timestamp,
+		time_limit integer NOT NULL,
+		FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+	);`
+
+	_, err = db.Exec(createSessionTable)
 	if err != nil {
 		log.Fatal("Error creating session table: ", err)
 	}
 
-	createAdminTable := `
-	CREATE TABLE IF NOT EXISTS admins (
-		id uuid PRIMARY KEY
-	);`
-
-	// Execute the SQL statement
-	_, err = db.Exec(createAdminTable)
-	if err != nil {
-		log.Fatal("Error creating admin table: ", err)
-	}
-
 	var count int
-	query := "SELECT COUNT(*) FROM admins"
+	query := "SELECT COUNT(*) FROM users"
 	err = db.QueryRow(query).Scan(&count)
 	if err != nil {
 		fmt.Printf("error checking user count: %v\n", err)
 	}
+
 	if count == 0 {
-		insertAdmin := `INSERT INTO admins(id) VALUES ($1) RETURNING id;`
-		id := uuid.New()
-		err = db.QueryRow(insertAdmin, id).Scan(&id)
-		if err != nil {
-			log.Fatal("Error inserting admin: ", err)
-		}
+		id := CreateUser(db, "Mr.", "Robot", true)
 		fmt.Printf("Created admin token: %v\n", id)
 	}
 
 	fmt.Println("Table(s) created successfully or already existed.")
 }
 
-func CreateSession(db *sql.DB, firstname string, lastname string, timelimit int64) uuid.UUID {
+func CreateUser(db *sql.DB, firstname, lastname string, isAdmin bool) uuid.UUID {
+	insertUser := `INSERT INTO users(id, firstname, lastname, is_admin) VALUES ($1, $2, $3, $4) RETURNING id;`
+	id := uuid.New()
+	err := db.QueryRow(insertUser, id, firstname, lastname, isAdmin).Scan(&id)
+	if err != nil {
+		log.Fatal("Error inserting user: ", err)
+	}
+	return id
+}
+
+func CreateSession(db *sql.DB, userId uuid.UUID, repo string, timelimit int64) uuid.UUID {
 	// SQL statement to insert a new person
 	insertSQL := `
-	INSERT INTO sessions (id, firstname, lastname, time_limit)
+	INSERT INTO sessions (id, user_id, repo, time_limit)
 	VALUES ($1, $2, $3, $4)
 	RETURNING id;`
 
 	id := uuid.New()
-	err := db.QueryRow(insertSQL, id, firstname, lastname, timelimit).Scan(&id)
+	err := db.QueryRow(insertSQL, id, userId, repo, timelimit).Scan(&id)
 	if err != nil {
 		log.Fatal("Error inserting session: ", err)
 	}
@@ -118,7 +126,7 @@ func GetSessions(db *sql.DB) ([]Session, error) {
 
 	for rows.Next() {
 		var session Session
-		err := rows.Scan(&session.ID, &session.Firstname, &session.Lastname, &session.Step, &session.Started, &session.Submitted, &session.Timelimit)
+		err := rows.Scan(&session.ID, &session.UserID, &session.Step, &session.Repo, &session.Started, &session.Submitted, &session.Timelimit)
 		if err != nil {
 			return nil, err
 		}
@@ -133,12 +141,12 @@ func GetSessions(db *sql.DB) ([]Session, error) {
 }
 
 func GetSession(db *sql.DB, token string) (Session, error) {
-	selectSQL := `SELECT * FROM sessions WHERE id = $1;`
+	selectSQL := `SELECT * FROM sessions WHERE user_id = $1;`
 
 	var session Session
 	row := db.QueryRow(selectSQL, token)
 
-	err := row.Scan(&session.ID, &session.Firstname, &session.Lastname, &session.Step, &session.Started, &session.Submitted, &session.Timelimit)
+	err := row.Scan(&session.ID, &session.UserID, &session.Step, &session.Repo, &session.Started, &session.Submitted, &session.Timelimit)
 	if err != nil {
 		return session, err
 	}
@@ -146,16 +154,21 @@ func GetSession(db *sql.DB, token string) (Session, error) {
 	return session, nil
 }
 
-func CheckAdminStatus(db *sql.DB, token string) (bool, error) {
-	selectSQL := `SELECT * FROM admins WHERE id = $1;`
+func CheckUserExists(db *sql.DB, token string, shouldBeAdmin bool) bool {
+	var query string
+	var exists bool
+	if !shouldBeAdmin {
+		query = `SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)`
+	} else {
+		query = `SELECT EXISTS(SELECT 1 FROM users WHERE id = $1 AND is_admin = true)`
+	}
+	row := db.QueryRow(query, token)
+	err := row.Scan(&exists)
 
-	var admin string
-	row := db.QueryRow(selectSQL, token)
-
-	err := row.Scan(&admin)
 	if err != nil {
-		return false, err
+		fmt.Printf("%v\n", err)
+		return false
 	}
 
-	return true, nil
+	return exists
 }

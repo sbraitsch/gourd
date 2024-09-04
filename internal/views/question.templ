@@ -1,17 +1,24 @@
 package views
 
+import (
+    "gourd/internal/storage"
+)
+
 const ph = "//get started"
 
-templ Question(intro templ.Component) {
-    @intro
-    <textarea id="code-editor">{ ph }</textarea>
-    <button hx-post="/api/submit">Submit</button>
-    <script>
-        let editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
-            mode: "javascript", // Set the language mode
-            theme: "dracula",   // Set the theme
-            lineNumbers: true,  // Show line numbers
-            matchBrackets: true // Highlight matching brackets
-        });
-    </script>
+templ Question(intro templ.Component, session storage.Session) {
+    <div class="question">
+        @intro
+        <textarea id="code-editor">{ ph }</textarea>
+        <button class="submit-btn" hx-post="/api/submit">Submit</button>
+        <p>Progress: { string(session.Step) }  /10</p>
+        <script>
+            let editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+                mode: "javascript", // Set the language mode
+                theme: "dracula",   // Set the theme
+                lineNumbers: true,  // Show line numbers
+                matchBrackets: true // Highlight matching brackets
+            });
+        </script>
+    </div>
 }

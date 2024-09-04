@@ -1,19 +1,41 @@
 package views
 
 templ SessionGenerator() {
+    <style>
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .popup {
+            background-color: #232526;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 25%;
+            text-align: center;
+        }
+    </style>
     <div class="overlay">
-        <div class="popup">
+        <div id="popup" class="popup">
             <h2>Generate a Session Token</h2>
-                <form hx-post="/admin/generate">
-                    <input name="firstname" type="text" class="token-input" placeholder="Candidate's first name"/>
-                    <input name="lastname" type="text" class="token-input" placeholder="Candidate's last name"/>
-                    <input name="timelimit" type="number" class="token-input" placeholder="Time limit" value="30"/>
+                <form hx-post="/admin/generate" hx-target="#popup">
+                    <input name="firstname" type="text" placeholder="Candidate's first name"/>
+                    <input name="lastname" type="text" placeholder="Candidate's last name"/>
+                    <input name="timelimit" type="number" placeholder="Time limit" value="30"/>
                     <label for="repo">Choose a Repository:</label>
-                    <select id="repo" name="Repositories">
+                    <select id="repo" name="repo">
                         <option value="sbraitsch/gourd_example">sbraitsch/gourd_example</option>
                         <option value="someother/example">someother/example</option>
                     </select>
-                    <button class="token-submit-btn" type="submit">Generate</button>
+                    <button class="submit-btn" type="submit">Generate</button>
                 </form>
         </div>
     </div>

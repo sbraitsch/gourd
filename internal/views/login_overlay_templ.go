@@ -8,7 +8,7 @@ package views
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func LoginOverlay(admin bool) templ.Component {
+func LoginOverlay() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -26,22 +26,7 @@ func LoginOverlay(admin bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"overlay\"><div class=\"popup\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		if admin {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h2>Enter Your Admin Token</h2><form hx-post=\"/janitor\"><input name=\"token\" type=\"text\" class=\"token-input\" placeholder=\"Enter token here...\"> <button class=\"token-submit-btn\" type=\"submit\">Log In</button></form>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h2>Enter Your Session Token</h2><p class=\"info-text\">You should have received it in an E-Mail.</p><form hx-post=\"/login\"><input name=\"token\" type=\"text\" class=\"token-input\" placeholder=\"Enter token here...\"> <button class=\"token-submit-btn\" type=\"submit\">Log In</button></form>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><style>\n            .overlay {\n                position: fixed;\n                top: 0;\n                left: 0;\n                width: 100%;\n                height: 100%;\n                background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */\n                display: flex;\n                justify-content: center;\n                align-items: center;\n            }\n\n            .popup {\n                background-color: #232526;\n                padding: 20px;\n                border-radius: 8px;\n                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);\n                width: 25%;\n                text-align: center;\n            }\n\n            .error {\n                padding: 1rem;\n                color: #a92020;\n            }\n        </style><div class=\"overlay\"><div class=\"popup\" hx-ext=\"response-targets\"><h2>Enter Your Personal Access Token</h2><form hx-post=\"/login\" hx-target-error=\"#response\"><input name=\"token\" type=\"text\" placeholder=\"Enter token here...\"> <button class=\"submit-btn\" type=\"submit\">Log In</button><div id=\"response\" class=\"error\"></div></form></div></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -1,13 +1,15 @@
 package api
 
 import (
+	"database/sql"
 	"fmt"
+	"github.com/google/uuid"
 	gourdMW "gourd/internal/middleware"
 	"gourd/internal/storage"
 	"net/http"
 )
 
-func writeCookies(token string, isAdmin bool, w http.ResponseWriter) {
+func writeCookies(token string, w http.ResponseWriter) {
 	cookie := &http.Cookie{
 		Name:     "token",
 		Value:    token,
@@ -20,60 +22,40 @@ func writeCookies(token string, isAdmin bool, w http.ResponseWriter) {
 
 	w.Header().Set("HX-Trigger", "content-refresh")
 	http.SetCookie(w, cookie)
-
-	if isAdmin {
-		adminCookie := &http.Cookie{
-			Name:     "isAdmin",
-			Value:    "true",
-			Path:     "/",
-			HttpOnly: true,
-			Secure:   false,
-			SameSite: http.SameSiteStrictMode,
-			MaxAge:   3600 * 24 * 7,
-		}
-		http.SetCookie(w, adminCookie)
-	}
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		http.Error(w, "Unable to parse form", http.StatusBadRequest)
+	defer r.Body.Close()
+	err, token, dbConn, done := parseRequest(w, r)
+	if done {
 		return
 	}
-	token := r.FormValue("token")
-	defer r.Body.Close()
+	exists := storage.CheckUserExists(dbConn, token, false)
 
-	dbConn := gourdMW.GetDBFromContext(r.Context())
-	session, err := storage.GetSession(dbConn, token)
-
-	if err != nil {
+	if !exists {
 		fmt.Println(err)
 		http.Error(w, "Token not recognized", http.StatusNotFound)
 		return
 	}
 
-	writeCookies(session.ID.String(), false, w)
+	writeCookies(token, w)
 	fmt.Fprint(w, "Login successful")
 }
 
-func AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
+func parseRequest(w http.ResponseWriter, r *http.Request) (error, string, *sql.DB, bool) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
-		return
+		return nil, "", nil, true
 	}
 
 	token := r.FormValue("token")
+	if _, err = uuid.Parse(token); err != nil {
+		fmt.Println(err)
+		http.Error(w, "Malformed Input", http.StatusBadRequest)
+		return nil, "", nil, true
+	}
 
 	dbConn := gourdMW.GetDBFromContext(r.Context())
-	isAdmin, err := storage.CheckAdminStatus(dbConn, token)
-
-	if !isAdmin {
-		fmt.Println(err)
-		http.Error(w, "Token not recognized", http.StatusNotFound)
-		return
-	}
-	defer r.Body.Close()
-	writeCookies(token, true, w)
+	return err, token, dbConn, false
 }
