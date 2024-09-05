@@ -47,6 +47,13 @@ func LoadConfig(cfgPath string) {
 	loadLocalConfig(cfgPath)
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		log.Info().Msgf("Config file changed: %s", e.Name)
+		ActiveConfig.Sources = nil
+		err := viper.Unmarshal(&cfg)
+		if err != nil {
+			log.Fatal().Err(err).Msg("unable to decode config into struct")
+		}
+		setConfig(&cfg)
+		log.Info().Msgf("Loaded config: %+v", cfg)
 	})
 	viper.WatchConfig()
 
