@@ -1,6 +1,10 @@
 package views
 
-templ SessionGenerator() {
+import (
+    "gourd/internal/config"
+)
+
+templ SessionGenerator(sources []config.Source) {
     <div class="overlay">
         <div id="popup" class="popup">
             <h2>Generate a Session Token</h2>
@@ -10,8 +14,9 @@ templ SessionGenerator() {
                     <input name="timelimit" type="number" placeholder="Time limit" value="30"/>
                     <label for="repo">Choose a Repository:</label>
                     <select id="repo" name="repo">
-                        <option value="sbraitsch/gourd_example">sbraitsch/gourd_example</option>
-                        <option value="someother/example">someother/example</option>
+                        for _, source := range sources {
+                            <option value="{ source.URL }">{ source.Name }</option>
+                        }
                     </select>
                     <button class="submit-btn" type="submit">Generate</button>
                 </form>

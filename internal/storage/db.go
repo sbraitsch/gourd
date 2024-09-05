@@ -5,22 +5,15 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
+	"gourd/internal/config"
 	"log"
-)
-
-// Database configuration constants
-const (
-	DB_USER     = "local"
-	DB_PASSWORD = "pwd"
-	DB_NAME     = "gourd_db"
-	DB_HOST     = "localhost"
-	DB_PORT     = 5432
 )
 
 func ConnectDB() *sql.DB {
 	// Formulate the connection string
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
+	cfg := config.GetConfig()
+	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		cfg.DbHost, cfg.DbPort, cfg.DbUser, cfg.DbPassword, cfg.DbName)
 
 	// Open a connection to the database
 	db, err := sql.Open("postgres", psqlInfo)

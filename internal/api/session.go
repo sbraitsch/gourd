@@ -1,7 +1,8 @@
 package api
 
 import (
-	gourdMW "gourd/internal/middleware"
+	"database/sql"
+	"gourd/internal/config"
 	"gourd/internal/storage"
 	"gourd/internal/views"
 	"log"
@@ -9,11 +10,15 @@ import (
 	"strconv"
 )
 
-func SessionGeneratorHandler(w http.ResponseWriter, r *http.Request) {
-	views.SessionGenerator().Render(r.Context(), w)
+type SessionHandler struct {
+	DB *sql.DB
 }
 
-func GenerateSessionHandler(w http.ResponseWriter, r *http.Request) {
+func (h SessionHandler) GetSessionGenerator(w http.ResponseWriter, r *http.Request) {
+	views.SessionGenerator(config.ActiveConfig.Sources).Render(r.Context(), w)
+}
+
+func (h SessionHandler) GenerateSession(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
@@ -27,16 +32,13 @@ func GenerateSessionHandler(w http.ResponseWriter, r *http.Request) {
 		log.Fatal("Someone managed to fuck up the time limit input.")
 	}
 	repo := r.FormValue("repo")
-
-	dbConn := gourdMW.GetDBFromContext(r.Context())
-	userId := storage.CreateUser(dbConn, firstname, lastname, false)
-	token := storage.CreateSession(dbConn, userId, repo, timelimit)
+	userId := storage.CreateUser(h.DB, firstname, lastname, false)
+	token := storage.CreateSession(h.DB, userId, repo, timelimit)
 	views.GenerationResult(token.String()).Render(r.Context(), w)
 }
 
-func GetSessionsHandler(w http.ResponseWriter, r *http.Request) {
-	dbConn := gourdMW.GetDBFromContext(r.Context())
-	sessions, err := storage.GetSessions(dbConn)
+func (h SessionHandler) GetSessions(w http.ResponseWriter, r *http.Request) {
+	sessions, err := storage.GetSessions(h.DB)
 
 	if err != nil {
 		log.Fatal("Error retrieving sessions from database: ", err)

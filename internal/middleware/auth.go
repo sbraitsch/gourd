@@ -2,16 +2,23 @@ package middleware
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"gourd/internal/storage"
 	"gourd/internal/views"
 	"net/http"
 )
 
+type contextKey string
+
 const tokenContextKey contextKey = "token"
 const adminContextKey contextKey = "admin"
 
-func AuthMiddleware(next http.Handler) http.Handler {
+type AuthMiddleware struct {
+	DB *sql.DB
+}
+
+func (mw *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("token")
 
@@ -26,13 +33,13 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		}
 
 		ctx := context.WithValue(r.Context(), tokenContextKey, cookie.Value)
-		isAdmin := storage.CheckUserExists(GetDBFromContext(r.Context()), cookie.Value, true)
+		isAdmin := storage.CheckUserExists(mw.DB, cookie.Value, true)
 		ctx = context.WithValue(ctx, adminContextKey, isAdmin)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
-func AdminMiddleware(next http.Handler) http.Handler {
+func (mw *AuthMiddleware) AuthenticateAdmin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		isAdmin := GetAdminStatusFromContext(r.Context())
 		if !isAdmin {

@@ -4,10 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/google/uuid"
-	gourdMW "gourd/internal/middleware"
 	"gourd/internal/storage"
 	"net/http"
 )
+
+type LoginHandler struct {
+	DB *sql.DB
+}
 
 func writeCookies(token string, w http.ResponseWriter) {
 	cookie := &http.Cookie{
@@ -24,13 +27,13 @@ func writeCookies(token string, w http.ResponseWriter) {
 	http.SetCookie(w, cookie)
 }
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
+func (h LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	err, token, dbConn, done := parseRequest(w, r)
+	err, token, done := parseRequest(w, r)
 	if done {
 		return
 	}
-	exists := storage.CheckUserExists(dbConn, token, false)
+	exists := storage.CheckUserExists(h.DB, token, false)
 
 	if !exists {
 		fmt.Println(err)
@@ -42,20 +45,18 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Login successful")
 }
 
-func parseRequest(w http.ResponseWriter, r *http.Request) (error, string, *sql.DB, bool) {
+func parseRequest(w http.ResponseWriter, r *http.Request) (error, string, bool) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
-		return nil, "", nil, true
+		return nil, "", true
 	}
 
 	token := r.FormValue("token")
 	if _, err = uuid.Parse(token); err != nil {
 		fmt.Println(err)
 		http.Error(w, "Malformed Input", http.StatusBadRequest)
-		return nil, "", nil, true
+		return nil, "", true
 	}
-
-	dbConn := gourdMW.GetDBFromContext(r.Context())
-	return err, token, dbConn, false
+	return err, token, false
 }

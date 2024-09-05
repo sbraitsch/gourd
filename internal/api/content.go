@@ -1,16 +1,22 @@
 package api
 
 import (
+	"database/sql"
+	"gourd/internal/config"
 	"gourd/internal/middleware"
 	"gourd/internal/storage"
 	"gourd/internal/views"
 	"net/http"
 )
 
-func ContentHandler(w http.ResponseWriter, r *http.Request) {
+type ContentHandler struct {
+	DB *sql.DB
+}
+
+func (h ContentHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 	isAdmin := middleware.GetAdminStatusFromContext(r.Context())
 	if !isAdmin {
-		session, err := storage.GetSession(middleware.GetDBFromContext(r.Context()), middleware.GetTokenFromContext(r.Context()))
+		session, err := storage.GetSession(h.DB, middleware.GetTokenFromContext(r.Context()))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
@@ -21,6 +27,6 @@ func ContentHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		views.Question(intro, session).Render(r.Context(), w)
 	} else {
-		views.SessionGenerator().Render(r.Context(), w)
+		views.SessionGenerator(config.ActiveConfig.Sources).Render(r.Context(), w)
 	}
 }

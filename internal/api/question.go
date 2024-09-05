@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"github.com/a-h/templ"
 	"github.com/yuin/goldmark"
 	"gourd/internal/middleware"
@@ -13,13 +14,17 @@ import (
 	"os"
 )
 
-func QuestionHandler(w http.ResponseWriter, r *http.Request) {
+type QuestionHandler struct {
+	DB *sql.DB
+}
+
+func (h QuestionHandler) GetQuestion(w http.ResponseWriter, r *http.Request) {
 	intro, err := RenderQuestion()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	session, err := storage.GetSession(middleware.GetDBFromContext(r.Context()), middleware.GetTokenFromContext(r.Context()))
+	session, err := storage.GetSession(h.DB, middleware.GetTokenFromContext(r.Context()))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
