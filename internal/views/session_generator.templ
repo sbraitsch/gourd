@@ -4,22 +4,24 @@ import (
     "gourd/internal/config"
 )
 
-templ SessionGenerator(sources []config.Source) {
-    <div class="overlay">
-        <div id="popup" class="popup">
-            <h2>Generate a Session Token</h2>
-                <form hx-post="/admin/generate" hx-target="#popup">
-                    <input name="firstname" type="text" placeholder="Candidate's first name"/>
-                    <input name="lastname" type="text" placeholder="Candidate's last name"/>
-                    <input name="timelimit" type="number" placeholder="Time limit" value="30"/>
-                    <label for="repo">Choose a Repository:</label>
-                    <select id="repo" name="repo">
-                        for _, source := range sources {
-                            <option value="{ source.URL }">{ source.Name }</option>
-                        }
-                    </select>
-                    <button class="submit-btn" type="submit">Generate</button>
-                </form>
-        </div>
+templ SessionGenerator(list templ.Component, sources []config.Source) {
+    <div class="side left" >
+        <img class="logo-small" src="/static/gourd_ylw.svg" alt="Stylized image of a gourd">
+        @list
+    </div>
+    <div class="side right">
+        <p>Generate Session</p>
+            <form hx-post="/admin/generate" hx-target="#popup">
+                <input name="firstname" type="text" placeholder="Candidate's first name"/>
+                <input name="lastname" type="text" placeholder="Candidate's last name"/>
+                <input name="timelimit" type="number" placeholder="Time limit" value="30"/>
+                <label for="repo">Choose a Repository:</label>
+                <select id="repo" name="repo">
+                    for _, source := range sources {
+                        <option value="{ source.URL }">{ source.Name }</option>
+                    }
+                </select>
+                <button class="submit-btn" type="submit">Generate</button>
+            </form>
     </div>
 }

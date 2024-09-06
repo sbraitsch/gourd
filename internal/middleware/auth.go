@@ -25,7 +25,7 @@ func (mw *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 		if err != nil {
 			if errors.Is(err, http.ErrNoCookie) {
 				w.Header().Set("Content-Type", "text/html")
-				views.LoginOverlay().Render(r.Context(), w)
+				views.Login().Render(r.Context(), w)
 				return
 			}
 			http.Error(w, "Error retrieving cookie", http.StatusInternalServerError)

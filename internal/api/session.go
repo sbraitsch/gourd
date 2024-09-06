@@ -2,7 +2,6 @@ package api
 
 import (
 	"database/sql"
-	"gourd/internal/config"
 	"gourd/internal/storage"
 	"gourd/internal/views"
 	"log"
@@ -12,10 +11,6 @@ import (
 
 type SessionHandler struct {
 	DB *sql.DB
-}
-
-func (h SessionHandler) GetSessionGenerator(w http.ResponseWriter, r *http.Request) {
-	views.SessionGenerator(config.ActiveConfig.Sources).Render(r.Context(), w)
 }
 
 func (h SessionHandler) GenerateSession(w http.ResponseWriter, r *http.Request) {
@@ -35,13 +30,4 @@ func (h SessionHandler) GenerateSession(w http.ResponseWriter, r *http.Request) 
 	userId := storage.CreateUser(h.DB, firstname, lastname, false)
 	token := storage.CreateSession(h.DB, userId, repo, timelimit)
 	views.GenerationResult(token.String()).Render(r.Context(), w)
-}
-
-func (h SessionHandler) GetSessions(w http.ResponseWriter, r *http.Request) {
-	sessions, err := storage.GetSessions(h.DB)
-
-	if err != nil {
-		log.Fatal("Error retrieving sessions from database: ", err)
-	}
-	views.List(sessions).Render(r.Context(), w)
 }

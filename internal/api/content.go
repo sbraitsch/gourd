@@ -2,6 +2,7 @@ package api
 
 import (
 	"database/sql"
+	"fmt"
 	"gourd/internal/config"
 	"gourd/internal/middleware"
 	"gourd/internal/storage"
@@ -27,6 +28,14 @@ func (h ContentHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 		}
 		views.Question(intro, session).Render(r.Context(), w)
 	} else {
-		views.SessionGenerator(config.ActiveConfig.Sources).Render(r.Context(), w)
+		sessions, err := storage.GetSessions(h.DB)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		for _, s := range sessions {
+			fmt.Println(s)
+		}
+		views.SessionGenerator(views.SessionList(sessions), config.ActiveConfig.Sources).Render(r.Context(), w)
 	}
 }

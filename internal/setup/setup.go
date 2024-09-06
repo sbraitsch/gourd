@@ -49,8 +49,6 @@ func configureAdminRouter(authMW *gourdMW.AuthMiddleware, db *sql.DB) *chi.Mux {
 	router.Use(authMW.AuthenticateAdmin)
 
 	sessionHandler := api.SessionHandler{DB: db}
-	router.Get("/sessions", sessionHandler.GetSessions)
-	router.Get("/generator", sessionHandler.GetSessionGenerator)
 	router.Post("/generate", sessionHandler.GenerateSession)
 	return router
 }

@@ -105,8 +105,14 @@ func CreateSession(db *sql.DB, userId uuid.UUID, repo string, timelimit int64) u
 	return id
 }
 
-func GetSessions(db *sql.DB) ([]Session, error) {
-	selectSQL := `SELECT * FROM sessions;`
+func GetSessions(db *sql.DB) ([]HydratedSession, error) {
+	selectSQL := `
+		SELECT 
+			s.id, s.step, s.repo, s.started, s.submitted, s.time_limit,
+			u.id, u.firstname, u.lastname, u.is_admin
+		FROM sessions s
+		JOIN users u ON s.user_id = u.id;
+	`
 
 	// Execute the SQL statement
 	rows, err := db.Query(selectSQL)
@@ -115,15 +121,30 @@ func GetSessions(db *sql.DB) ([]Session, error) {
 	}
 	defer rows.Close()
 
-	var sessions []Session
+	var sessions []HydratedSession
 
 	for rows.Next() {
-		var session Session
-		err := rows.Scan(&session.ID, &session.UserID, &session.Step, &session.Repo, &session.Started, &session.Submitted, &session.Timelimit)
+		var hs HydratedSession
+		var user User
+
+		err := rows.Scan(
+			&hs.ID,
+			&hs.Step,
+			&hs.Repo,
+			&hs.Started,
+			&hs.Submitted,
+			&hs.Timelimit,
+			&user.ID,
+			&user.Firstname,
+			&user.Lastname,
+			&user.IsAdmin,
+		)
+
+		hs.User = user
 		if err != nil {
 			return nil, err
 		}
-		sessions = append(sessions, session)
+		sessions = append(sessions, hs)
 	}
 
 	if err = rows.Err(); err != nil {

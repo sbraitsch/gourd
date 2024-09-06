@@ -1,0 +1,21 @@
+package views
+
+import(
+    "gourd/internal/storage"
+    "encoding/json"
+)
+
+func stringify(session storage.HydratedSession) string {
+    jsonData, err := json.MarshalIndent(session, "", "  ")
+    if err != nil {
+        return "Marshalling Error"
+    }
+    return string(jsonData)
+}
+
+templ SessionList(sessions []storage.HydratedSession) {
+    <p>Existing Sessions:</p>
+    for _, session := range sessions {
+        <pre>{ session.ID.String() }<br>{ session.User.Firstname } { session.User.Lastname }</pre>
+    }
+}

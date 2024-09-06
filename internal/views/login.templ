@@ -1,0 +1,22 @@
+package views
+
+templ Login() {
+    <style>
+        .error {
+            padding: 1rem;
+            color: #a92020;
+        }
+    </style>
+    <div class="side left" >
+        <img class="logo" src="/static/gourd_ylw.svg" alt="Stylized image of a gourd">
+        <p style="font-size: 4rem">Gourd</p>
+    </div>
+    <div id="right" class="side right">
+        <p>Enter your<br>Personal Access Token</p>
+        <form hx-post="/login" hx-target-error="#response">
+            <input name="token" type="text" placeholder="Enter token here..."/>
+            <button class="submit-btn" type="submit">Log In</button>
+            <div id="response" class="error" ></div>
+        </form>
+    </div>
+}

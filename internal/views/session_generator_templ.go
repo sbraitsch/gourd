@@ -12,7 +12,7 @@ import (
 	"gourd/internal/config"
 )
 
-func SessionGenerator(sources []config.Source) templ.Component {
+func SessionGenerator(list templ.Component, sources []config.Source) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
@@ -30,7 +30,15 @@ func SessionGenerator(sources []config.Source) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"overlay\"><div id=\"popup\" class=\"popup\"><h2>Generate a Session Token</h2><form hx-post=\"/admin/generate\" hx-target=\"#popup\"><input name=\"firstname\" type=\"text\" placeholder=\"Candidate&#39;s first name\"> <input name=\"lastname\" type=\"text\" placeholder=\"Candidate&#39;s last name\"> <input name=\"timelimit\" type=\"number\" placeholder=\"Time limit\" value=\"30\"> <label for=\"repo\">Choose a Repository:</label> <select id=\"repo\" name=\"repo\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"side left\"><img class=\"logo-small\" src=\"/static/gourd_ylw.svg\" alt=\"Stylized image of a gourd\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = list.Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"side right\"><p>Generate Session</p><form hx-post=\"/admin/generate\" hx-target=\"#popup\"><input name=\"firstname\" type=\"text\" placeholder=\"Candidate&#39;s first name\"> <input name=\"lastname\" type=\"text\" placeholder=\"Candidate&#39;s last name\"> <input name=\"timelimit\" type=\"number\" placeholder=\"Time limit\" value=\"30\"> <label for=\"repo\">Choose a Repository:</label> <select id=\"repo\" name=\"repo\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -42,7 +50,7 @@ func SessionGenerator(sources []config.Source) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(source.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/session_generator.templ`, Line: 18, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/session_generator.templ`, Line: 21, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
@@ -53,7 +61,7 @@ func SessionGenerator(sources []config.Source) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select> <button class=\"submit-btn\" type=\"submit\">Generate</button></form></div></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select> <button class=\"submit-btn\" type=\"submit\">Generate</button></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
