@@ -1,16 +1,11 @@
 package api
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/google/uuid"
 	"gourd/internal/storage"
 	"net/http"
 )
-
-type LoginHandler struct {
-	DB *sql.DB
-}
 
 func writeCookies(token string, w http.ResponseWriter) {
 	cookie := &http.Cookie{
@@ -27,7 +22,7 @@ func writeCookies(token string, w http.ResponseWriter) {
 	http.SetCookie(w, cookie)
 }
 
-func (h LoginHandler) Login(w http.ResponseWriter, r *http.Request) {
+func (h DBHandler) Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	err, token, done := parseRequest(w, r)
 	if done {

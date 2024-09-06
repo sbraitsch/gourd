@@ -30,7 +30,7 @@ func SessionGenerator(list templ.Component, sources []config.Source) templ.Compo
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"side left\"><img class=\"logo-small\" src=\"/web_assets/gourd_ylw.svg\" alt=\"Stylized image of a gourd\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"side left\"><img class=\"logo-small\" src=\"/static/gourd_ylw.svg\" alt=\"Stylized image of a gourd\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -3,7 +3,6 @@ package api
 import (
 	"bytes"
 	"context"
-	"database/sql"
 	"fmt"
 	"github.com/a-h/templ"
 	"github.com/yuin/goldmark"
@@ -16,11 +15,7 @@ import (
 	"path/filepath"
 )
 
-type QuestionHandler struct {
-	DB *sql.DB
-}
-
-func (h QuestionHandler) GetQuestion(w http.ResponseWriter, r *http.Request) {
+func (h DBHandler) GetQuestion(w http.ResponseWriter, r *http.Request) {
 	token := middleware.GetTokenFromContext(r.Context())
 	session, err := storage.GetSession(h.DB, token)
 	intro, code, mode, err := RenderQuestion(session)

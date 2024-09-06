@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"fmt"
 	"gourd/internal/config"
 	"gourd/internal/middleware"
@@ -10,11 +9,7 @@ import (
 	"net/http"
 )
 
-type ContentHandler struct {
-	DB *sql.DB
-}
-
-func (h ContentHandler) GetContent(w http.ResponseWriter, r *http.Request) {
+func (h DBHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 	isAdmin := middleware.GetAdminStatusFromContext(r.Context())
 	if !isAdmin {
 		token := middleware.GetTokenFromContext(r.Context())

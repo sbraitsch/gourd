@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"gourd/internal/storage"
 	"gourd/internal/views"
 	"log"
@@ -9,11 +8,7 @@ import (
 	"strconv"
 )
 
-type SessionHandler struct {
-	DB *sql.DB
-}
-
-func (h SessionHandler) GenerateSession(w http.ResponseWriter, r *http.Request) {
+func (h DBHandler) GenerateSession(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)

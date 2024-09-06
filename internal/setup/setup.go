@@ -16,50 +16,45 @@ func Init() (*chi.Mux, *sql.DB) {
 
 	authMW := gourdMW.AuthMiddleware{DB: db}
 
-	protectedRouter := configureProtectedRouter(&authMW, db)
-	adminRouter := configureAdminRouter(&authMW, db)
-	router := configureMainRouter(protectedRouter, adminRouter, db)
+	dbHandler := api.DBHandler{DB: db}
+	protectedRouter := configureProtectedRouter(&authMW, dbHandler)
+	adminRouter := configureAdminRouter(&authMW, dbHandler)
+	router := configureMainRouter(protectedRouter, adminRouter, dbHandler)
 	return router, db
 }
 
-func configureMainRouter(protectedRouter, adminRouter *chi.Mux, db *sql.DB) *chi.Mux {
+func configureMainRouter(protectedRouter, adminRouter *chi.Mux, handler api.DBHandler) *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 
-	fs := http.FileServer(http.Dir("web_assets"))
-	router.Handle("/web_assets/*", http.StripPrefix("/web_assets/", fs))
+	fs := http.FileServer(http.Dir("static"))
+	router.Handle("/static/*", http.StripPrefix("/static/", fs))
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "internal/views/index.html")
 	})
-
-	loginHandler := api.LoginHandler{DB: db}
-	router.Post("/login", loginHandler.Login)
-	router.Get("/clone", api.CloneHandler)
+	router.Post("/login", handler.Login)
 
 	router.Mount("/api", protectedRouter)
 	router.Mount("/admin", adminRouter)
 	return router
 }
 
-func configureAdminRouter(authMW *gourdMW.AuthMiddleware, db *sql.DB) *chi.Mux {
+func configureAdminRouter(authMW *gourdMW.AuthMiddleware, handler api.DBHandler) *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(authMW.Authenticate)
 	router.Use(authMW.AuthenticateAdmin)
 
-	sessionHandler := api.SessionHandler{DB: db}
-	router.Post("/generate", sessionHandler.GenerateSession)
+	router.Post("/generate", handler.GenerateSession)
 	return router
 }
 
-func configureProtectedRouter(authMW *gourdMW.AuthMiddleware, db *sql.DB) *chi.Mux {
+func configureProtectedRouter(authMW *gourdMW.AuthMiddleware, handler api.DBHandler) *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(authMW.Authenticate)
 
-	questionHandler := api.QuestionHandler{DB: db}
-	router.Get("/questions", questionHandler.GetQuestion)
-	contentHandler := api.ContentHandler{DB: db}
-	router.Get("/content", contentHandler.GetContent)
+	router.Get("/questions", handler.GetQuestion)
+	router.Get("/content", handler.GetContent)
 	return router
 }
