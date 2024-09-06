@@ -27,8 +27,8 @@ func configureMainRouter(protectedRouter, adminRouter *chi.Mux, db *sql.DB) *chi
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 
-	fs := http.FileServer(http.Dir("static"))
-	router.Handle("/static/*", http.StripPrefix("/static/", fs))
+	fs := http.FileServer(http.Dir("web_assets"))
+	router.Handle("/web_assets/*", http.StripPrefix("/web_assets/", fs))
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "internal/views/index.html")

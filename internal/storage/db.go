@@ -50,7 +50,7 @@ func CreateTable(db *sql.DB) {
 	CREATE TABLE IF NOT EXISTS sessions (
 		id uuid PRIMARY KEY,
 		user_id uuid NOT NULL,
-	    step integer DEFAULT 0,
+	    step integer DEFAULT 1,
 		repo varchar(255) NOT NULL,
 		started timestamp DEFAULT CURRENT_TIMESTAMP,
 		submitted timestamp,
@@ -185,4 +185,19 @@ func CheckUserExists(db *sql.DB, token string, shouldBeAdmin bool) bool {
 	}
 
 	return exists
+}
+
+func GetCurrentStep(db *sql.DB, token string) int {
+	query := `SELECT step FROM sessions WHERE user_id = $1`
+
+	var step int
+	row := db.QueryRow(query, token)
+	err := row.Scan(&step)
+
+	if err != nil {
+		fmt.Printf("%v\n", err)
+		return 0
+	}
+
+	return step
 }

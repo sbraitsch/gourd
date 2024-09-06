@@ -17,16 +17,17 @@ type ContentHandler struct {
 func (h ContentHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 	isAdmin := middleware.GetAdminStatusFromContext(r.Context())
 	if !isAdmin {
-		session, err := storage.GetSession(h.DB, middleware.GetTokenFromContext(r.Context()))
+		token := middleware.GetTokenFromContext(r.Context())
+		session, err := storage.GetSession(h.DB, token)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-		intro, err := RenderQuestion()
+		intro, code, mode, err := RenderQuestion(session)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		views.Question(intro, session).Render(r.Context(), w)
+		views.Question(intro, code, mode, session).Render(r.Context(), w)
 	} else {
 		sessions, err := storage.GetSessions(h.DB)
 		if err != nil {

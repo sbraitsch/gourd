@@ -25,9 +25,10 @@ type Config struct {
 }
 
 type Source struct {
-	URL  string
-	Name string
-	PAT  string
+	URL       string
+	LocalPath string
+	Name      string
+	PAT       string
 }
 
 func GetConfig() *Config {

@@ -5,18 +5,48 @@ import (
     "strconv"
 )
 
-const ph = "//get started"
+templ Question(intro templ.Component, code string, mode string, session storage.Session) {
+    <style>
+        .footer {
+            display: flex;
+            align-content: center;
+            justify-content: space-between;
+            width: 100%;
+            padding-top: 1em;
+            padding-bottom: 1em;
+        }
+        .progress {
+            margin: 0;
+        }
+        .next {
+            font-size: 1.5em !important;
+            background: none;
+            border: none;
+            color: inherit;
+            font: inherit;
+            cursor: pointer;
+            text-align: right;
+            padding: 0;
+            margin: 0;
+        }
+        .next:hover {
+            text-decoration: underline;
+        }
 
-templ Question(intro templ.Component, session storage.Session) {
+    </style>
     <div class="question">
         @intro
-        <textarea id="code-editor">{ ph }</textarea>
-        <button class="submit-btn" hx-post="/api/submit">Submit</button>
-        <p>Progress: { strconv.Itoa(session.Step) }  /10</p>
+        <textarea id="code-editor">{ code }</textarea>
+        <div id="footer" class="footer">
+            <p class="progress" >Progress: { strconv.Itoa(session.Step) }  /10</p>
+            <button class="next" hx-post="/api/submit">Submit >></button>
+        </div>
+        @templ.JSONScript("mode", mode)
         <script>
+            let lang = JSON.parse(document.getElementById('mode').textContent);
             let editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
-                mode: "javascript", // Set the language mode
-                theme: "dracula",   // Set the theme
+                mode: lang, // Set the language mode
+                theme: "ayu-dark",   // Set the theme
                 lineNumbers: true,  // Show line numbers
                 matchBrackets: true // Highlight matching brackets
             });

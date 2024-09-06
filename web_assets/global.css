@@ -2,11 +2,12 @@ body {
     background-color: whitesmoke;
     font-family: Consolas, 'Courier New', Courier, monospace;
     color: black;
+    margin: 0;
 }
 
 .container {
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -75,11 +76,6 @@ input {
     text-decoration: underline;
 }
 
-.info-text {
-    font-size: 14px;
-    color: lightgray;
-}
-
 label {
     display: block;
     margin-top: 10px;
@@ -97,11 +93,13 @@ select {
     flex-direction: column;
     justify-content: left;
     align-items: start;
+    width: 80%;
     height: 100%;
 }
 
 .question .submit-btn {
     width: fit-content;
+    height: fit-content;
 }
 
 .question h2 {
@@ -117,6 +115,8 @@ select {
 }
 
 .CodeMirror {
-    width: 75vw;
+    height: 100%;
+    width: 100%;
     font-size: 1.5em;
+    flex: 1;
 }
