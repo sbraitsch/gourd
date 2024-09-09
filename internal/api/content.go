@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"gourd/internal/config"
 	"gourd/internal/middleware"
 	"gourd/internal/storage"
@@ -17,20 +16,22 @@ func (h DBHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
-		intro, code, mode, err := RenderQuestion(session)
+		intro, code, mode, err := RenderQuestion(session.MaxProgress, session)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		views.Question(intro, code, mode, session).Render(r.Context(), w)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		renderedQuestion := views.Question(intro, code, mode, session.MaxProgress)
+		views.QuestionContainer(renderedQuestion).Render(r.Context(), w)
 	} else {
 		sessions, err := storage.GetSessions(h.DB)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
-		}
-		for _, s := range sessions {
-			fmt.Println(s)
 		}
 		views.SessionGenerator(views.SessionList(sessions), config.ActiveConfig.Sources).Render(r.Context(), w)
 	}

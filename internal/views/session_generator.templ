@@ -9,19 +9,19 @@ templ SessionGenerator(list templ.Component, sources []config.Source) {
         <img class="logo-small" src="/internal/static/gourd_ylw.svg" alt="Stylized image of a gourd">
         @list
     </div>
-    <div class="side right">
+    <div id="right" class="side right">
         <p>Generate Session</p>
-            <form hx-post="/admin/generate" hx-target="#popup">
-                <input name="firstname" type="text" placeholder="Candidate's first name"/>
-                <input name="lastname" type="text" placeholder="Candidate's last name"/>
-                <input name="timelimit" type="number" placeholder="Time limit" value="30"/>
-                <label for="repo">Choose a Repository:</label>
-                <select id="repo" name="repo">
-                    for _, source := range sources {
-                        <option value="{ source.URL }">{ source.Name }</option>
-                    }
-                </select>
-                <button class="submit-btn" type="submit">Generate</button>
-            </form>
+        <form hx-post="/admin/generate" hx-target="#right">
+            <input name="firstname" type="text" placeholder="Candidate's first name"/>
+            <input name="lastname" type="text" placeholder="Candidate's last name"/>
+            <input name="timelimit" type="number" placeholder="Time limit" value="30"/>
+            <label for="repo">Choose a Repository:</label>
+            <select id="repo" name="repo">
+                for _, source := range sources {
+                    <option value={ source.URL }>{ source.DisplayName }</option>
+                }
+            </select>
+            <button class="submit-btn" type="submit">Generate</button>
+        </form>
     </div>
 }

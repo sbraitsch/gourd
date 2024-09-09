@@ -50,9 +50,10 @@ func CreateTable(db *sql.DB) {
 	CREATE TABLE IF NOT EXISTS sessions (
 		id uuid PRIMARY KEY,
 		user_id uuid NOT NULL,
-	    step integer DEFAULT 1,
+	    current_step integer DEFAULT 1,
+		max_progress integer DEFAULT 1,
 		repo varchar(255) NOT NULL,
-		started timestamp DEFAULT CURRENT_TIMESTAMP,
+		started timestamp,
 		submitted timestamp,
 		time_limit integer NOT NULL,
 		FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -108,7 +109,7 @@ func CreateSession(db *sql.DB, userId uuid.UUID, repo string, timelimit int64) u
 func GetSessions(db *sql.DB) ([]HydratedSession, error) {
 	selectSQL := `
 		SELECT 
-			s.id, s.step, s.repo, s.started, s.submitted, s.time_limit,
+			s.id, s.current_step, s.max_progress, s.repo, s.started, s.submitted, s.time_limit,
 			u.id, u.firstname, u.lastname, u.is_admin
 		FROM sessions s
 		JOIN users u ON s.user_id = u.id;
@@ -129,7 +130,8 @@ func GetSessions(db *sql.DB) ([]HydratedSession, error) {
 
 		err := rows.Scan(
 			&hs.ID,
-			&hs.Step,
+			&hs.CurrentStep,
+			&hs.MaxProgress,
 			&hs.Repo,
 			&hs.Started,
 			&hs.Submitted,
@@ -160,12 +162,22 @@ func GetSession(db *sql.DB, token string) (Session, error) {
 	var session Session
 	row := db.QueryRow(selectSQL, token)
 
-	err := row.Scan(&session.ID, &session.UserID, &session.Step, &session.Repo, &session.Started, &session.Submitted, &session.Timelimit)
+	err := row.Scan(&session.ID, &session.UserID, &session.CurrentStep, &session.MaxProgress, &session.Repo, &session.Started, &session.Submitted, &session.Timelimit)
 	if err != nil {
 		return session, err
 	}
 
 	return session, nil
+}
+
+func UpdateSessionProgress(db *sql.DB, session Session) (bool, error) {
+	updateSQL := `UPDATE sessions SET current_step = $1, max_progress = $2 WHERE user_id = $3`
+
+	_, err := db.Exec(updateSQL, session.CurrentStep, session.MaxProgress, session.UserID)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func CheckUserExists(db *sql.DB, token string, shouldBeAdmin bool) bool {

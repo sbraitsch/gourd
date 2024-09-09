@@ -28,8 +28,8 @@ func configureMainRouter(protectedRouter, adminRouter *chi.Mux, handler api.DBHa
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 
-	fs := http.FileServer(http.Dir("static"))
-	router.Handle("/static/*", http.StripPrefix("/static/", fs))
+	fs := http.FileServer(http.Dir("internal/static"))
+	router.Handle("/internal/static/*", http.StripPrefix("/internal/static/", fs))
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "internal/views/index.html")
@@ -54,7 +54,7 @@ func configureProtectedRouter(authMW *gourdMW.AuthMiddleware, handler api.DBHand
 	router := chi.NewRouter()
 	router.Use(authMW.Authenticate)
 
-	router.Get("/questions", handler.GetQuestion)
+	router.Get("/questions/{id}", handler.GetQuestion)
 	router.Get("/content", handler.GetContent)
 	return router
 }

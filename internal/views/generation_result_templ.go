@@ -26,7 +26,7 @@ func GenerationResult(token string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<h2>Generated Token</h2><h3 style=\"color: #2ece2e\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p>Generated Token</p><h3 style=\"color: #2ece2e\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

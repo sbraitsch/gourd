@@ -16,6 +16,6 @@ func stringify(session storage.HydratedSession) string {
 templ SessionList(sessions []storage.HydratedSession) {
     <p>Existing Sessions:</p>
     for _, session := range sessions {
-        <pre>{ session.ID.String() }<br>{ session.User.Firstname } { session.User.Lastname }</pre>
+        <pre>{ session.UserID.String() }<br>{ session.User.Firstname } { session.User.Lastname }</pre>
     }
 }

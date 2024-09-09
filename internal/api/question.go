@@ -5,7 +5,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/a-h/templ"
+	"github.com/go-chi/chi/v5"
 	"github.com/yuin/goldmark"
+	"gourd/internal/config"
 	"gourd/internal/middleware"
 	"gourd/internal/storage"
 	"gourd/internal/views"
@@ -13,12 +15,19 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 )
 
 func (h DBHandler) GetQuestion(w http.ResponseWriter, r *http.Request) {
 	token := middleware.GetTokenFromContext(r.Context())
 	session, err := storage.GetSession(h.DB, token)
-	intro, code, mode, err := RenderQuestion(session)
+	idParam, err := strconv.Atoi(chi.URLParam(r, "id"))
+	session.CurrentStep = idParam
+	if idParam > session.MaxProgress {
+		session.MaxProgress = idParam
+	}
+	storage.UpdateSessionProgress(h.DB, session)
+	intro, code, mode, err := RenderQuestion(idParam, session)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -27,12 +36,20 @@ func (h DBHandler) GetQuestion(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
-	views.Question(intro, code, mode, session).Render(r.Context(), w)
+	views.Question(intro, code, mode, idParam).Render(r.Context(), w)
 }
 
-func RenderQuestion(session storage.Session) (templ.Component, string, string, error) {
-	questionFilePath := fmt.Sprintf("../gourd_example/part_%02d/question.md", session.Step)
-	providedCodeFilePath := fmt.Sprintf("../gourd_example/part_%02d/provided_code.*", session.Step)
+func RenderQuestion(step int, session storage.Session) (templ.Component, string, string, error) {
+	var repoPath string
+	for _, source := range config.ActiveConfig.Sources {
+		if source.URL == session.Repo {
+			repoPath = source.LocalPath
+			break
+		}
+	}
+
+	questionFilePath := fmt.Sprintf("%s/part_%02d/question.md", repoPath, step)
+	providedCodeFilePath := fmt.Sprintf("%s/part_%02d/provided_code.*", repoPath, step)
 
 	question, err := os.ReadFile(questionFilePath)
 	if err != nil {

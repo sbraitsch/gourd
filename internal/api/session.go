@@ -14,7 +14,6 @@ func (h DBHandler) GenerateSession(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
 		return
 	}
-
 	firstname := r.FormValue("firstname")
 	lastname := r.FormValue("lastname")
 	timelimit, err := strconv.ParseInt(r.FormValue("timelimit"), 10, 64)
@@ -23,6 +22,6 @@ func (h DBHandler) GenerateSession(w http.ResponseWriter, r *http.Request) {
 	}
 	repo := r.FormValue("repo")
 	userId := storage.CreateUser(h.DB, firstname, lastname, false)
-	token := storage.CreateSession(h.DB, userId, repo, timelimit)
-	views.GenerationResult(token.String()).Render(r.Context(), w)
+	storage.CreateSession(h.DB, userId, repo, timelimit)
+	views.GenerationResult(userId.String()).Render(r.Context(), w)
 }

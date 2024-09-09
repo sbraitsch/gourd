@@ -1,0 +1,61 @@
+package views
+
+templ QuestionContainer(question templ.Component) {
+    <style>
+        .footer {
+            display: flex;
+            align-content: center;
+            justify-content: space-between;
+            width: 100%;
+            padding-top: 1em;
+            padding-bottom: 1em;
+        }
+        .progress {
+            margin: 0;
+        }
+        .text-btn {
+            font-size: 1.5em !important;
+            background: none;
+            border: none;
+            color: inherit;
+            font: inherit;
+            cursor: pointer;
+            text-align: right;
+            padding: 0;
+            margin: 0;
+        }
+        .text-btn:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+    <div id="question-container" class="container">
+        <div id="question" class="question">
+            @question
+        </div>
+        <script>
+            let lang
+            let editor
+            function initEditor() {
+                lang = JSON.parse(document.getElementById('mode').textContent);
+                editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+                    mode: lang,
+                    theme: "ayu-dark",
+                    lineNumbers: true,
+                    matchBrackets: true
+                });
+            }
+            initEditor()
+            document.body.addEventListener('htmx:afterSwap', function(event) {
+                if (event.detail.target.id === "question") {
+                    editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+                         mode: lang,
+                         theme: "ayu-dark",
+                         lineNumbers: true,
+                         matchBrackets: true
+                     });
+                }
+            })
+        </script>
+    </div>
+}

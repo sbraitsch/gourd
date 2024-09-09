@@ -30,7 +30,7 @@ func SessionGenerator(list templ.Component, sources []config.Source) templ.Compo
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"side left\"><img class=\"logo-small\" src=\"/static/gourd_ylw.svg\" alt=\"Stylized image of a gourd\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"side left\"><img class=\"logo-small\" src=\"/internal/static/gourd_ylw.svg\" alt=\"Stylized image of a gourd\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -38,21 +38,34 @@ func SessionGenerator(list templ.Component, sources []config.Source) templ.Compo
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"side right\"><p>Generate Session</p><form hx-post=\"/admin/generate\" hx-target=\"#popup\"><input name=\"firstname\" type=\"text\" placeholder=\"Candidate&#39;s first name\"> <input name=\"lastname\" type=\"text\" placeholder=\"Candidate&#39;s last name\"> <input name=\"timelimit\" type=\"number\" placeholder=\"Time limit\" value=\"30\"> <label for=\"repo\">Choose a Repository:</label> <select id=\"repo\" name=\"repo\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div id=\"right\" class=\"side right\"><p>Generate Session</p><form hx-post=\"/admin/generate\" hx-target=\"#right\"><input name=\"firstname\" type=\"text\" placeholder=\"Candidate&#39;s first name\"> <input name=\"lastname\" type=\"text\" placeholder=\"Candidate&#39;s last name\"> <input name=\"timelimit\" type=\"number\" placeholder=\"Time limit\" value=\"30\"> <label for=\"repo\">Choose a Repository:</label> <select id=\"repo\" name=\"repo\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, source := range sources {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<option value=\"{ source.URL }\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<option value=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(source.Name)
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(source.URL)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/session_generator.templ`, Line: 21, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/session_generator.templ`, Line: 21, Col: 46}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var3 string
+			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(source.DisplayName)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/views/session_generator.templ`, Line: 21, Col: 69}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
