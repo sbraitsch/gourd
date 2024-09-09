@@ -26,14 +26,15 @@ func (h DBHandler) GetQuestion(w http.ResponseWriter, r *http.Request) {
 	if idParam > session.MaxProgress {
 		session.MaxProgress = idParam
 	}
-	storage.UpdateSessionProgress(h.DB, session)
-	intro, code, mode, err := RenderQuestion(idParam, session)
+	err = storage.UpdateSessionProgress(h.DB, session)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	intro, code, mode, err := RenderQuestion(idParam, session)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	views.Question(intro, code, mode, idParam).Render(r.Context(), w)

@@ -170,14 +170,11 @@ func GetSession(db *sql.DB, token string) (Session, error) {
 	return session, nil
 }
 
-func UpdateSessionProgress(db *sql.DB, session Session) (bool, error) {
+func UpdateSessionProgress(db *sql.DB, session Session) error {
 	updateSQL := `UPDATE sessions SET current_step = $1, max_progress = $2 WHERE user_id = $3`
 
 	_, err := db.Exec(updateSQL, session.CurrentStep, session.MaxProgress, session.UserID)
-	if err != nil {
-		return false, err
-	}
-	return true, nil
+	return err
 }
 
 func CheckUserExists(db *sql.DB, token string, shouldBeAdmin bool) bool {

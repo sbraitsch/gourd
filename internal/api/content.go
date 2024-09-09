@@ -21,10 +21,6 @@ func (h DBHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
 		renderedQuestion := views.Question(intro, code, mode, session.MaxProgress)
 		views.QuestionContainer(renderedQuestion).Render(r.Context(), w)
 	} else {
