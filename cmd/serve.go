@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/rs/zerolog/log"
+	"gourd/internal/common"
 	"gourd/internal/config"
 	"gourd/internal/setup"
 	"net/http"
@@ -28,6 +29,6 @@ func serve(cmd *cobra.Command, args []string) {
 	config.LoadConfig(cfgPath)
 	router, db := setup.Init()
 	defer db.Close()
-	log.Info().Msgf("Starting server on port :%v", config.ActiveConfig.ServerPort)
-	http.ListenAndServe(fmt.Sprintf(":%v", config.ActiveConfig.ServerPort), router)
+	log.Info().Msgf("Starting server on port :%v", common.GetActiveConfig().ServerPort)
+	http.ListenAndServe(fmt.Sprintf(":%v", common.GetActiveConfig().ServerPort), router)
 }

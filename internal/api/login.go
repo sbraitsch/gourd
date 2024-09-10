@@ -22,9 +22,9 @@ func writeCookies(token string, w http.ResponseWriter) {
 	http.SetCookie(w, cookie)
 }
 
-func (h DBHandler) Login(w http.ResponseWriter, r *http.Request) {
+func (h *DBHandler) Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	err, token, done := parseRequest(w, r)
+	err, token, done := parseRequestToken(w, r)
 	if done {
 		return
 	}
@@ -40,7 +40,7 @@ func (h DBHandler) Login(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Login successful")
 }
 
-func parseRequest(w http.ResponseWriter, r *http.Request) (error, string, bool) {
+func parseRequestToken(w http.ResponseWriter, r *http.Request) (error, string, bool) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)

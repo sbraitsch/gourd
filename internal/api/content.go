@@ -1,14 +1,14 @@
 package api
 
 import (
-	"gourd/internal/config"
+	"gourd/internal/common"
 	"gourd/internal/middleware"
 	"gourd/internal/storage"
 	"gourd/internal/views"
 	"net/http"
 )
 
-func (h DBHandler) GetContent(w http.ResponseWriter, r *http.Request) {
+func (h *DBHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 	isAdmin := middleware.GetAdminStatusFromContext(r.Context())
 	if !isAdmin {
 		token := middleware.GetTokenFromContext(r.Context())
@@ -29,6 +29,6 @@ func (h DBHandler) GetContent(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		views.SessionGenerator(views.SessionList(sessions), config.ActiveConfig.Sources).Render(r.Context(), w)
+		views.SessionGenerator(views.SessionList(sessions), common.GetActiveConfig().Sources).Render(r.Context(), w)
 	}
 }

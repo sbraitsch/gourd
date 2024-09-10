@@ -8,19 +8,17 @@ import (
 	"gourd/internal/git_ops"
 )
 
-var ActiveConfig *common.Config
-
 func LoadConfig(cfgPath string) {
 	var cfg common.Config
 	loadLocalConfig(cfgPath)
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		log.Info().Msgf("Config file changed: %s", e.Name)
-		ActiveConfig.Sources = nil
+		common.GetActiveConfig().Sources = nil
 		err := viper.Unmarshal(&cfg)
 		if err != nil {
 			log.Fatal().Err(err).Msg("unable to decode config into struct")
 		}
-		ActiveConfig = &cfg
+		common.SetActiveConfig(&cfg)
 		log.Info().Msgf("Loaded config: %+v", cfg)
 	})
 	viper.WatchConfig()
@@ -32,7 +30,7 @@ func LoadConfig(cfgPath string) {
 	for _, source := range cfg.Sources {
 		git_ops.TryClone(source)
 	}
-	ActiveConfig = &cfg
+	common.SetActiveConfig(&cfg)
 }
 
 func loadLocalConfig(cfgPath string) {

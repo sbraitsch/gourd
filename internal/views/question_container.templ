@@ -36,6 +36,12 @@ templ QuestionContainer(question templ.Component) {
         <script>
             let lang
             let editor
+            let textarea
+            let previous
+            function updateTextArea() {
+                textarea = document.getElementById('code-editor');
+                textarea.value = editor.getValue()
+            }
             function initEditor() {
                 lang = JSON.parse(document.getElementById('mode').textContent);
                 editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
@@ -44,6 +50,7 @@ templ QuestionContainer(question templ.Component) {
                     lineNumbers: true,
                     matchBrackets: true
                 });
+                editor.on('change', updateTextArea)
             }
             initEditor()
             document.body.addEventListener('htmx:afterSwap', function(event) {
@@ -53,9 +60,20 @@ templ QuestionContainer(question templ.Component) {
                          theme: "ayu-dark",
                          lineNumbers: true,
                          matchBrackets: true
-                     });
+                    });
+                    editor.on('change', updateTextArea)
                 }
             })
+
+            function checkAndSync() {
+                textarea = document.getElementById('code-editor');
+                if (textarea.value !== previous) {
+                    document.body.dispatchEvent(new Event('sync'));
+                    previous = textarea.value
+                    console.log("sync")
+                }
+            }
+            setInterval(checkAndSync, 5000)
         </script>
     </div>
 }

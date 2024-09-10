@@ -67,5 +67,6 @@ func configureProtectedRouter(authMW *gourdMW.AuthMiddleware, handler api.DBHand
 
 	router.Get("/questions/{id}", handler.GetQuestion)
 	router.Get("/content", handler.GetContent)
+	router.Post("/sync", handler.SyncProgress)
 	return router
 }
