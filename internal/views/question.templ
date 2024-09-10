@@ -12,6 +12,7 @@ func getRoute(step int) string {
 templ Question(intro templ.Component, code string, mode string, step int) {
     @intro
     @templ.JSONScript("mode", mode)
+    <p id="synced" style="font-size: 1em"></p>
     <form
         id="code-form"
         style="width: 100%; height: 100%;"
@@ -26,7 +27,7 @@ templ Question(intro templ.Component, code string, mode string, step int) {
         if (step > 1) {
             <button class="text-btn" hx-get={ getRoute(step - 1) } hx-target="#question">Previous</button>
         }
-        <p class="progress" >Progress: { strconv.Itoa(step) }  /10</p>
+        <p class="progress" >{ strconv.Itoa(step) }/10</p>
         <button class="text-btn" hx-post="/api/sync" hx-include="#code-form">Save</button>
         <button class="text-btn" hx-get={ getRoute(step + 1) } hx-target="#question">Next</button>
     </div>

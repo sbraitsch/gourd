@@ -34,10 +34,17 @@ templ QuestionContainer(question templ.Component) {
             @question
         </div>
         <script>
-            let lang
-            let editor
-            let textarea
-            let previous
+            let lang;
+            let editor;
+            let textarea;
+            let previous = document.getElementById('code-editor').value;
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            const currentTime = `Last Sync: ${hours}:${minutes}:${seconds}`;
+            document.getElementById('synced').textContent = currentTime;
+
             function updateTextArea() {
                 textarea = document.getElementById('code-editor');
                 textarea.value = editor.getValue()
@@ -70,8 +77,14 @@ templ QuestionContainer(question templ.Component) {
                 if (textarea.value !== previous) {
                     document.body.dispatchEvent(new Event('sync'));
                     previous = textarea.value
-                    console.log("sync")
                 }
+                const now = new Date();
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+                const currentTime = `Last Sync: ${hours}:${minutes}:${seconds}`;
+                document.getElementById('synced').textContent = currentTime;
+
             }
             setInterval(checkAndSync, 5000)
         </script>
