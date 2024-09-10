@@ -26,7 +26,7 @@ func Login() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style>\n        .error {\n            padding: 1rem;\n            color: #a92020;\n        }\n    </style><div class=\"side left\"><img class=\"logo\" src=\"/internal/static/gourd_ylw.svg\" alt=\"Stylized image of a gourd\"><p style=\"font-size: 4rem\">gourd</p></div><div id=\"right\" class=\"side right\"><p>Enter your<br>Personal Access Token</p><form hx-post=\"/login\" hx-target-error=\"#response\"><input name=\"token\" type=\"text\" placeholder=\"Enter token here...\"> <button class=\"submit-btn\" type=\"submit\">Log In</button><div id=\"response\" class=\"error\"></div></form></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style>\n        .error {\n            padding: 1rem;\n            color: #a92020;\n        }\n    </style><div class=\"side left\"><img class=\"logo\" src=\"/internal/static/gourd.svg\" alt=\"Stylized image of a gourd\"><p style=\"font-size: 4rem\">gourd</p></div><div id=\"right\" class=\"side right\"><p>Enter your<br>Personal Access Token</p><form hx-post=\"/login\" hx-target-error=\"#response\"><input name=\"token\" type=\"text\" placeholder=\"Enter token here...\"> <button class=\"submit-btn\" type=\"submit\">Log In</button><div id=\"response\" class=\"error\"></div></form></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

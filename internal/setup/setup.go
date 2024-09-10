@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"gourd/internal"
 	"gourd/internal/api"
 	gourdMW "gourd/internal/middleware"
 	"gourd/internal/storage"
+	"io"
 	"net/http"
 )
 
@@ -28,11 +30,20 @@ func configureMainRouter(protectedRouter, adminRouter *chi.Mux, handler api.DBHa
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
 
-	fs := http.FileServer(http.Dir("internal/static"))
-	router.Handle("/internal/static/*", http.StripPrefix("/internal/static/", fs))
+	fs := http.FileServer(http.FS(internal.StaticAssets))
+	router.Handle("/internal/static/*", http.StripPrefix("/internal/", fs))
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "internal/views/index.html")
+		file, err := internal.StaticAssets.Open("static/index.html")
+		if err != nil {
+			http.Error(w, "File not found", http.StatusNotFound)
+		}
+		defer file.Close()
+		fileInfo, err := file.Stat()
+		if err != nil {
+			http.Error(w, "Could not get file info", http.StatusInternalServerError)
+		}
+		http.ServeContent(w, r, fileInfo.Name(), fileInfo.ModTime(), file.(io.ReadSeeker))
 	})
 	router.Post("/login", handler.Login)
 

@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="200" src="/internal/static/gourd_ylw.svg">
+  <img width="200" src="/internal/static/gourd.svg">
 </p>
 
 
