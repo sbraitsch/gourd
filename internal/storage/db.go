@@ -11,7 +11,7 @@ import (
 
 func ConnectDB() *sql.DB {
 	// Formulate the connection string
-	cfg := config.GetConfig()
+	cfg := config.ActiveConfig
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.DbHost, cfg.DbPort, cfg.DbUser, cfg.DbPassword, cfg.DbName)
 

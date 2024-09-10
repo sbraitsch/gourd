@@ -50,7 +50,7 @@ func RenderQuestion(step int, session storage.Session) (templ.Component, string,
 	}
 
 	questionFilePath := fmt.Sprintf("%s/part_%02d/question.md", repoPath, step)
-	providedCodeFilePath := fmt.Sprintf("%s/part_%02d/provided_code.*", repoPath, step)
+	providedCodeFilePath := fmt.Sprintf("%s/part_%02d/code.*", repoPath, step)
 
 	question, err := os.ReadFile(questionFilePath)
 	if err != nil {

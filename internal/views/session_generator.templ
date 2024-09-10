@@ -1,10 +1,10 @@
 package views
 
 import (
-    "gourd/internal/config"
+    "gourd/internal/common"
 )
 
-templ SessionGenerator(list templ.Component, sources []config.Source) {
+templ SessionGenerator(list templ.Component, sources []common.Source) {
     <div class="side left" >
         <img class="logo-small" src="/internal/static/gourd.svg" alt="Stylized image of a gourd">
         @list
