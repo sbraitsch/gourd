@@ -2,6 +2,7 @@ package storage
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/google/uuid"
 )
 
@@ -21,6 +22,10 @@ type User struct {
 	Firstname string    `json:"firstname"`
 	Lastname  string    `json:"lastname"`
 	IsAdmin   bool      `json:"is_admin"`
+}
+
+func (user *User) GetBranchName() string {
+	return fmt.Sprintf("%s_%s_%s", user.Firstname, user.Lastname, user.ID)
 }
 
 type HydratedSession struct {

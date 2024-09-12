@@ -24,17 +24,13 @@ func CommitToBranch(session storage.HydratedSession, repoPath string, code, ext 
 		return err
 	}
 	log.Info().Msg("FS Mutex locked")
-	err = CheckoutBranch(repo, session.User)
+	err = CheckoutBranch(repo, session.User.GetBranchName())
 	if err != nil {
 		log.Info().Msgf("Couldn't checkout user branch: %v", err)
 		return err
 	}
+	defer CheckoutBranch(repo, "main")
 	err = commit(repo, repoPath, 1, code, ext)
-	if err != nil {
-		CheckoutMain(repo)
-		return err
-	}
-	err = CheckoutMain(repo)
 	if err != nil {
 		return err
 	}
