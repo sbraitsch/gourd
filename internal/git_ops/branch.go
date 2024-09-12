@@ -1,7 +1,6 @@
 package git_ops
 
 import (
-	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/rs/zerolog/log"
@@ -14,7 +13,7 @@ func CreateBranch(repo *git.Repository, user storage.User) error {
 		return err
 	}
 
-	branchName := fmt.Sprintf("%s_%s_%s", user.Firstname, user.Lastname, user.ID)
+	branchName := user.GetBranchName()
 	newBranchRef := plumbing.NewHashReference(plumbing.NewBranchReferenceName(branchName), headRef.Hash())
 	err = repo.Storer.SetReference(newBranchRef)
 
