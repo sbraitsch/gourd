@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 	"gourd/internal/storage"
 	"net/http"
 )
@@ -24,34 +25,36 @@ func writeCookies(token string, w http.ResponseWriter) {
 
 func (h *DBHandler) Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	err, token, done := parseRequestToken(w, r)
-	if done {
+	token, err := parseRequestToken(w, r)
+	if err != nil {
+		log.Error().Err(err).Msg("failed to parse token")
 		return
 	}
 	exists := storage.CheckUserExists(h.DB, token, false)
 
 	if !exists {
-		fmt.Println(err)
+		log.Error().Msg("Token not recognized")
 		http.Error(w, "Token not recognized", http.StatusNotFound)
 		return
 	}
 
 	writeCookies(token, w)
+	log.Info().Msg("Login successful")
 	fmt.Fprint(w, "Login successful")
 }
 
-func parseRequestToken(w http.ResponseWriter, r *http.Request) (error, string, bool) {
+func parseRequestToken(w http.ResponseWriter, r *http.Request) (string, error) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)
-		return nil, "", true
+		return "", err
 	}
 
 	token := r.FormValue("token")
 	if _, err = uuid.Parse(token); err != nil {
 		fmt.Println(err)
 		http.Error(w, "Malformed Input", http.StatusBadRequest)
-		return nil, "", true
+		return "", err
 	}
-	return err, token, false
+	return token, nil
 }

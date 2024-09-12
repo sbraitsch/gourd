@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"gourd/internal/common"
 	"gourd/internal/storage"
 	"gourd/internal/views"
 	"net/http"
@@ -25,7 +26,8 @@ func (mw *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 		if err != nil {
 			if errors.Is(err, http.ErrNoCookie) {
 				w.Header().Set("Content-Type", "text/html")
-				views.Login().Render(r.Context(), w)
+				cfg := common.GetActiveConfig()
+				views.Login(cfg.ApplicationTitle, cfg.ApplicationSubtitle, cfg.LogoPath).Render(r.Context(), w)
 				return
 			}
 			http.Error(w, "Error retrieving cookie", http.StatusInternalServerError)

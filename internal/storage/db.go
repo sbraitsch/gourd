@@ -13,7 +13,7 @@ func ConnectDB() *sql.DB {
 	// Formulate the connection string
 	cfg := common.GetActiveConfig()
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		cfg.DbHost, cfg.DbPort, cfg.DbUser, cfg.DbPassword, cfg.DbName)
+		cfg.DB.Host, cfg.DB.Port, cfg.DB.User, cfg.DB.Password, cfg.DB.Name)
 
 	// Open a connection to the database
 	db, err := sql.Open("postgres", psqlInfo)

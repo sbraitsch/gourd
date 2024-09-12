@@ -8,15 +8,22 @@ import (
 )
 
 type Config struct {
-	DbPassword string
-	DbUser     string
-	DbName     string
-	DbHost     string
-	DbPort     string
+	ApplicationTitle    string
+	ApplicationSubtitle string
+	LogoPath            string
+	ServerPort          int
 
-	ServerPort int
+	DB DBConfig
 
 	Sources []Source
+}
+
+type DBConfig struct {
+	Password string
+	User     string
+	Name     string
+	Host     string
+	Port     string
 }
 
 type Source struct {

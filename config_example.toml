@@ -1,0 +1,21 @@
+ApplicationTitle = "gourd" # Main title for the application
+ApplicationSubtitle = "Online Assessment" # Subtitle for the Application
+LogoPath = "../custom/logo.png" # Local path to a logo shown on the login mask
+ServerPort = 8080 # Port to run the server on
+
+# Database configuration
+[DB]
+Password = "pwd"
+User = "local"
+Name = "gourd_db"
+Host = "localhost"
+Port = "5432"
+
+# Sources array
+[[Sources]]
+URL = "https://github.com/some/special_repository.git" # URL of the GH repository
+LocalPath = "../special_repository" # Local path to the repository, including the name
+DisplayName = "Gourd Base Course" # Name displayed in the dropdown selection
+# Repository Login Credentials
+Username = "myusername"
+PAT = "mypersonalaccesstoken"

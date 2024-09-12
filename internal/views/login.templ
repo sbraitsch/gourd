@@ -1,6 +1,6 @@
 package views
 
-templ Login() {
+templ Login(title, subtitle, logoPath string) {
     <style>
         .error {
             padding: 1rem;
@@ -8,8 +8,9 @@ templ Login() {
         }
     </style>
     <div class="side left" >
-        <img class="logo" src="/internal/static/gourd.svg" alt="Stylized image of a gourd">
-        <p style="font-size: 4rem">gourd</p>
+        <img class="logo" src={ logoPath } alt="Application Logo">
+        <p style="font-size: 3rem; padding: 1vh; margin: 0">{ title }</p>
+        <p style="font-size: 2rem; padding: 1vh; margin: 0">{ subtitle }</p>
     </div>
     <div id="right" class="side right">
         <p>Enter your<br>Personal Access Token</p>
