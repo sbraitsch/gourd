@@ -46,8 +46,18 @@ PAT = "mypersonalaccesstoken"
 
 The application listens to changes to the `config.toml` at runtime and applies them (such as adding or removing a source).
 
-GitHub repositories are used as dynamic sources for questions to render. Currently those repositories are assumed to be private,
-so a PAT and Username are required.
+GitHub repositories are used as dynamic sources for questions to render. Currently, those repositories are assumed to be private,
+so a PAT and Username are required.<br>
+As of now, the repository structure needs to be:
+```
+/part_XX
+   code.ext
+   question.md
+/part_XX
+   ...
+```
+Where XX is replaced by a zero-padded number starting from 1, and ext is one of [go | kt | java | js | ts | py | rs].
+
 
 An admin token will be generated on first start of the application and can be used to generate session tokens for specific users and repositories.<br>
 User submissions will be pushed to dedicated branches in the source repository, where they can be reviewed.
