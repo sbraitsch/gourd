@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// Config represents the content of the config.toml in code.
 type Config struct {
 	ApplicationTitle    string
 	ApplicationSubtitle string
@@ -36,6 +37,7 @@ type Source struct {
 
 var activeConfig *Config
 
+// GetRepoName returns the repositories name from its URL.
 func (src *Source) GetRepoName() string {
 	parsedURL, err := url.Parse(src.URL)
 	if err != nil {
@@ -51,6 +53,7 @@ func (src *Source) GetRepoName() string {
 	return strings.TrimSuffix(parts[2], ".git")
 }
 
+// Find searches for the given repository in the list of configured sources, returning it if found.
 func (cfg *Config) Find(repo string) (*Source, error) {
 	for _, source := range cfg.Sources {
 		if source.URL == repo {
@@ -60,10 +63,12 @@ func (cfg *Config) Find(repo string) (*Source, error) {
 	return nil, fmt.Errorf("no source configured for repository %s", repo)
 }
 
+// GetActiveConfig returns the active config.
 func GetActiveConfig() *Config {
 	return activeConfig
 }
 
+// SetActiveConfig sets the active config.
 func SetActiveConfig(cfg *Config) {
 	activeConfig = cfg
 }

@@ -21,10 +21,12 @@ var serveCmd = &cobra.Command{
 var cfgPath string
 
 func init() {
+	// add a --config param to the CLI to pass in the location of the config.toml
 	serveCmd.Flags().StringVarP(&cfgPath, "config", "c", "./", "Path to the config file")
 	rootCmd.AddCommand(serveCmd)
 }
 
+// serve loads the config from the config.toml and sets up the chi router, then starts the server.
 func serve(cmd *cobra.Command, args []string) {
 	config.LoadConfig(cfgPath)
 	router, db := setup.Init()

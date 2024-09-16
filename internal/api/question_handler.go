@@ -18,6 +18,7 @@ import (
 	"strconv"
 )
 
+// GetQuestion is the HandlerFunc for the /api/question endpoint.
 func (h *DBHandler) GetQuestion(w http.ResponseWriter, r *http.Request) {
 	token := middleware.GetTokenFromContext(r.Context())
 	session, err := storage.GetSession(h.DB, token)
@@ -40,12 +41,14 @@ func (h *DBHandler) GetQuestion(w http.ResponseWriter, r *http.Request) {
 	views.Question(intro, code, mode, idParam).Render(r.Context(), w)
 }
 
+// RenderQuestion renders the dynamic part of the question HTML based on the provided context data.
 func RenderQuestion(step int, session storage.HydratedSession) (templ.Component, string, string, error) {
 	source, err := common.GetActiveConfig().Find(session.Repo)
 	if err != nil {
 		fmt.Errorf("repository %s not configured locally", session.Repo)
 	}
 
+	// build local file paths
 	questionFilePath := fmt.Sprintf("%s/part_%02d/question.md", source.LocalPath, step)
 	providedCodeFilePath := fmt.Sprintf("%s/part_%02d/code.*", source.LocalPath, step)
 
@@ -56,6 +59,7 @@ func RenderQuestion(step int, session storage.HydratedSession) (templ.Component,
 
 	md := goldmark.New()
 
+	// read the file content into markdown
 	var buf bytes.Buffer
 	if err := md.Convert(question, &buf); err != nil {
 		return nil, "", "", err

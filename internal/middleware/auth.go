@@ -19,7 +19,9 @@ type AuthMiddleware struct {
 	DB *sql.DB
 }
 
-func (mw *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
+// AuthenticationBasic is router middleware that authenticates requests based on a token cookie.
+// If the cookie does not exist, it returns a rendered Login-HTML.
+func (mw *AuthMiddleware) AuthenticationBasic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("token")
 
@@ -41,7 +43,10 @@ func (mw *AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 	})
 }
 
-func (mw *AuthMiddleware) AuthenticateAdmin(next http.Handler) http.Handler {
+// AuthenticationAdmin is an additional router middleware for admin endpoints.
+// This is run after the basic authentication middleware, so the context is set.
+// Checks if the token belongs to an admin user.
+func (mw *AuthMiddleware) AuthenticationAdmin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		isAdmin := GetAdminStatusFromContext(r.Context())
 		if !isAdmin {
@@ -53,6 +58,7 @@ func (mw *AuthMiddleware) AuthenticateAdmin(next http.Handler) http.Handler {
 	})
 }
 
+// GetTokenFromContext retrieves the token from the request context.
 func GetTokenFromContext(ctx context.Context) string {
 	token, ok := ctx.Value(tokenContextKey).(string)
 	if !ok {
@@ -61,6 +67,7 @@ func GetTokenFromContext(ctx context.Context) string {
 	return token
 }
 
+// GetAdminStatusFromContext retrieves the admin status from the request context.
 func GetAdminStatusFromContext(ctx context.Context) bool {
 	isAdmin, ok := ctx.Value(adminContextKey).(bool)
 	if !ok {

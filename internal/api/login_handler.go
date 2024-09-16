@@ -8,7 +8,12 @@ import (
 	"net/http"
 )
 
-func writeCookies(token string, w http.ResponseWriter) {
+/*
+	setCookie configures the cookie to be set on the client.
+
+Also adds the HX-Trigger header to trigger a content refresh since the user will now be authenticated.
+*/
+func setCookie(token string, w http.ResponseWriter) {
 	cookie := &http.Cookie{
 		Name:     "token",
 		Value:    token,
@@ -23,9 +28,10 @@ func writeCookies(token string, w http.ResponseWriter) {
 	http.SetCookie(w, cookie)
 }
 
+// Login is the HandlerFunc for the /login endpoint. Parses the token from the form and checks if that user exists.
 func (h *DBHandler) Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	token, err := parseRequestToken(w, r)
+	token, err := parseRequestForm(w, r)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to parse token")
 		return
@@ -38,12 +44,13 @@ func (h *DBHandler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeCookies(token, w)
+	setCookie(token, w)
 	log.Info().Msg("Login successful")
 	fmt.Fprint(w, "Login successful")
 }
 
-func parseRequestToken(w http.ResponseWriter, r *http.Request) (string, error) {
+// parseRequestForm parses the form and asserts the token is a valid UUID.
+func parseRequestForm(w http.ResponseWriter, r *http.Request) (string, error) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)

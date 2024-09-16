@@ -8,6 +8,8 @@ import (
 	"os"
 )
 
+// TryClone trys to clone the repository to a local directory.
+// Does nothing, if the directory exists already.
 func TryClone(source common.Source) {
 	log.Info().Msgf("Preparing to clone %s to %s", source.DisplayName, source.LocalPath)
 	if !directoryExists(source.LocalPath) {
@@ -21,6 +23,9 @@ func TryClone(source common.Source) {
 	}
 }
 
+/*
+Checks if the given path leads to an existing directory.
+*/
 func directoryExists(path string) bool {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {

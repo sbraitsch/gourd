@@ -8,6 +8,8 @@ import (
 	"gourd/internal/git_ops"
 )
 
+// LoadConfig loads the config from the given filepath into the active config struct using viper.
+// The config file is watched for changes at runtime.
 func LoadConfig(cfgPath string) {
 	var cfg common.Config
 	loadLocalConfig(cfgPath)
@@ -19,6 +21,9 @@ func LoadConfig(cfgPath string) {
 			log.Fatal().Err(err).Msg("unable to decode config into struct")
 		}
 		common.SetActiveConfig(&cfg)
+		for _, source := range cfg.Sources {
+			git_ops.TryClone(source)
+		}
 		log.Info().Msgf("Loaded config: %+v", cfg)
 	})
 	viper.WatchConfig()
@@ -33,6 +38,7 @@ func LoadConfig(cfgPath string) {
 	common.SetActiveConfig(&cfg)
 }
 
+// loadLocalConfig sets up viper and reads the specified config in.
 func loadLocalConfig(cfgPath string) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")

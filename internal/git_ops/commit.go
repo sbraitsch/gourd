@@ -14,6 +14,8 @@ import (
 
 var fsMutex sync.Mutex
 
+// CommitToBranch checks out the users local branch, commits his changes and returns to main.
+// This workflow is protected by a mutex to avoid git conflicts in the case that multiple users synchronize at the same time.
 func CommitToBranch(session storage.HydratedSession, repoPath string, code, ext string) error {
 	log.Info().Msg("Acquiring FS Mutex")
 	fsMutex.Lock()
@@ -29,6 +31,7 @@ func CommitToBranch(session storage.HydratedSession, repoPath string, code, ext 
 		log.Info().Msgf("Couldn't checkout user branch: %v", err)
 		return err
 	}
+	// deferring the main checkout to ensure not being stuck in the user branch on error.
 	defer CheckoutBranch(repo, "main")
 	err = commit(repo, repoPath, 1, code, ext)
 	if err != nil {
@@ -38,6 +41,7 @@ func CommitToBranch(session storage.HydratedSession, repoPath string, code, ext 
 	return nil
 }
 
+// commit adds the new content input by the user to staging and commits it.
 func commit(repo *git.Repository, repoPath string, part int, content, mode string) error {
 	fileName := fmt.Sprintf("part_%02d/code%s", part, common.ResolveExtMode(mode))
 	filePath := fmt.Sprintf("%s/%s", repoPath, fileName)

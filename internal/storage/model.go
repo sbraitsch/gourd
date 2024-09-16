@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Session holds all information about a session in its database representation.
 type Session struct {
 	ID          uuid.UUID    `json:"id"`
 	UserID      uuid.UUID    `json:"user_id"`
@@ -17,6 +18,7 @@ type Session struct {
 	Timelimit   int          `json:"timelimit"`
 }
 
+// User  holds all information about a user in its database representation.
 type User struct {
 	ID        uuid.UUID `json:"id"`
 	Firstname string    `json:"firstname"`
@@ -24,10 +26,12 @@ type User struct {
 	IsAdmin   bool      `json:"is_admin"`
 }
 
+// GetBranchName returns the string to be used for branch creation based on the user.
 func (user *User) GetBranchName() string {
 	return fmt.Sprintf("%s_%s_%s", user.Firstname, user.Lastname, user.ID)
 }
 
+// HydratedSession holds all relevant user-session information, combining session and user.
 type HydratedSession struct {
 	ID          uuid.UUID
 	User        User

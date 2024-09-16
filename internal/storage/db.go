@@ -9,13 +9,12 @@ import (
 	"gourd/internal/common"
 )
 
+// ConnectDB connects to the local postgres database using the active config. /*
 func ConnectDB() *sql.DB {
-	// Formulate the connection string
 	cfg := common.GetActiveConfig()
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.DB.Host, cfg.DB.Port, cfg.DB.User, cfg.DB.Password, cfg.DB.Name)
 
-	// Open a connection to the database
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
 		log.Error().Err(err).Msg("Error connecting to the database")
@@ -32,6 +31,7 @@ func ConnectDB() *sql.DB {
 	return db
 }
 
+// CreateTable creates the necessary tables if they do not exist./*
 func CreateTable(db *sql.DB) {
 	createUserTable := `
 	CREATE TABLE IF NOT EXISTS users (
@@ -75,10 +75,9 @@ func CreateTable(db *sql.DB) {
 		id := CreateUser(db, "Mr.", "Robot", true)
 		log.Info().Msgf("Created admin token: %v\n", id)
 	}
-
-	log.Info().Msg("Table(s) created successfully or already existed.")
 }
 
+// CreateUser inserts a new row into the users table.
 func CreateUser(db *sql.DB, firstname, lastname string, isAdmin bool) User {
 	insertUser := `INSERT INTO users(id, firstname, lastname, is_admin) VALUES ($1, $2, $3, $4) RETURNING id;`
 	id := uuid.New()
@@ -94,6 +93,7 @@ func CreateUser(db *sql.DB, firstname, lastname string, isAdmin bool) User {
 	}
 }
 
+// CreateSession inserts a new row into the sessions table.
 func CreateSession(db *sql.DB, userId uuid.UUID, repo string, timelimit int64) uuid.UUID {
 	// SQL statement to insert a new person
 	insertSQL := `
@@ -111,6 +111,7 @@ func CreateSession(db *sql.DB, userId uuid.UUID, repo string, timelimit int64) u
 	return id
 }
 
+// GetSessions returns all sessions from the database and hydrates the user data.
 func GetSessions(db *sql.DB) ([]HydratedSession, error) {
 	selectSQL := `
 		SELECT 
@@ -160,6 +161,7 @@ func GetSessions(db *sql.DB) ([]HydratedSession, error) {
 	return sessions, nil
 }
 
+// GetSession returns the hydrated session of the given user/token.
 func GetSession(db *sql.DB, token string) (HydratedSession, error) {
 	selectSQL := `
 		SELECT 
@@ -195,6 +197,7 @@ func GetSession(db *sql.DB, token string) (HydratedSession, error) {
 	return session, nil
 }
 
+// UpdateSessionProgress updates the current_step and max_progress fields of a session.
 func UpdateSessionProgress(db *sql.DB, session HydratedSession) error {
 	updateSQL := `UPDATE sessions SET current_step = $1, max_progress = $2 WHERE user_id = $3`
 
@@ -202,6 +205,7 @@ func UpdateSessionProgress(db *sql.DB, session HydratedSession) error {
 	return err
 }
 
+// CheckUserExists returns whether a given token maps to an existing user or not.
 func CheckUserExists(db *sql.DB, token string, shouldBeAdmin bool) bool {
 	var query string
 	var exists bool
@@ -219,19 +223,4 @@ func CheckUserExists(db *sql.DB, token string, shouldBeAdmin bool) bool {
 	}
 
 	return exists
-}
-
-func GetCurrentStep(db *sql.DB, token string) int {
-	query := `SELECT step FROM sessions WHERE user_id = $1`
-
-	var step int
-	row := db.QueryRow(query, token)
-	err := row.Scan(&step)
-
-	if err != nil {
-		fmt.Printf("%v\n", err)
-		return 0
-	}
-
-	return step
 }

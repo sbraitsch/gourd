@@ -7,6 +7,8 @@ import (
 	"gourd/internal/storage"
 )
 
+// CreateBranch creates a new local branch for the given repository and user.
+// It is always assumed that the repository exists locally, since it should be pulled on config read.
 func CreateBranch(repo *git.Repository, user storage.User) error {
 	headRef, err := repo.Head()
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// CheckoutBranch swaps to the given branch of the local repository.
 func CheckoutBranch(repo *git.Repository, branchName string) error {
 	worktree, err := repo.Worktree()
 	if err != nil {
