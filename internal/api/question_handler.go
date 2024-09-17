@@ -19,7 +19,7 @@ import (
 )
 
 // GetQuestion is the HandlerFunc for the /api/question endpoint.
-func (h *DBHandler) GetQuestion(w http.ResponseWriter, r *http.Request) {
+func (h *HandlerStruct) GetQuestion(w http.ResponseWriter, r *http.Request) {
 	token := middleware.GetTokenFromContext(r.Context())
 	session, err := storage.GetSession(h.DB, token)
 	idParam, err := strconv.Atoi(chi.URLParam(r, "id"))

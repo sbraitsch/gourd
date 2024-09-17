@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/rs/zerolog/log"
 	"gourd/internal/common"
 	"gourd/internal/storage"
 	"gourd/internal/views"
@@ -37,7 +38,12 @@ func (mw *AuthMiddleware) AuthenticationBasic(next http.Handler) http.Handler {
 		}
 
 		ctx := context.WithValue(r.Context(), tokenContextKey, cookie.Value)
-		isAdmin := storage.CheckUserExists(mw.DB, cookie.Value, true)
+		exists, isAdmin := storage.CheckUserExists(mw.DB, cookie.Value)
+		if !exists {
+			log.Error().Msg("Token not recognized")
+			http.Error(w, "Token not recognized", http.StatusNotFound)
+			return
+		}
 		ctx = context.WithValue(ctx, adminContextKey, isAdmin)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})

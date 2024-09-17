@@ -12,7 +12,7 @@ import (
 )
 
 // GenerateSession is theHandlerFunc for the /admin/generate endpoint that is used to create a new session and user.
-func (h *DBHandler) GenerateSession(w http.ResponseWriter, r *http.Request) {
+func (h *HandlerStruct) GenerateSession(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		http.Error(w, "Unable to parse form", http.StatusBadRequest)

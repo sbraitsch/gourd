@@ -14,61 +14,25 @@ func ConnectDB() *sql.DB {
 	cfg := common.GetActiveConfig()
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.DB.Host, cfg.DB.Port, cfg.DB.User, cfg.DB.Password, cfg.DB.Name)
-
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		log.Error().Err(err).Msg("Error connecting to the database")
+		log.Fatal().Err(err).Msg("Error connecting to the database")
 	}
-
-	// Check the connection
 	err = db.Ping()
 	if err != nil {
-		log.Error().Err(err).Msg("Error pinging to the database")
+		log.Fatal().Err(err).Msg("Error pinging to the database")
 	}
-
 	log.Info().Msg("Successfully connected to the database!")
-
 	return db
 }
 
-// CreateTable creates the necessary tables if they do not exist./*
-func CreateTable(db *sql.DB) {
-	createUserTable := `
-	CREATE TABLE IF NOT EXISTS users (
-		id uuid PRIMARY KEY,
-		firstname varchar(255) NOT NULL,
-		lastname varchar(255) NOT NULL,
-		is_admin boolean NOT NULL
-	);`
-
-	_, err := db.Exec(createUserTable)
-	if err != nil {
-		log.Error().Err(err).Msg("Error creating user table: ")
-	}
-
-	createSessionTable := `
-	CREATE TABLE IF NOT EXISTS sessions (
-		id uuid PRIMARY KEY,
-		user_id uuid NOT NULL,
-	    current_step integer DEFAULT 1,
-		max_progress integer DEFAULT 1,
-		repo varchar(255) NOT NULL,
-		started timestamp,
-		submitted timestamp,
-		time_limit integer NOT NULL,
-		FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-	);`
-
-	_, err = db.Exec(createSessionTable)
-	if err != nil {
-		log.Error().Err(err).Msg("Error creating session table: ")
-	}
-
+// InitAdminUser creates an initial admin user.
+func InitAdminUser(db *sql.DB) {
 	var count int
 	query := "SELECT COUNT(*) FROM users"
-	err = db.QueryRow(query).Scan(&count)
+	err := db.QueryRow(query).Scan(&count)
 	if err != nil {
-		log.Error().Err(err).Msg("Error checking user count: ")
+		log.Fatal().Err(err).Msg("Error checking user count: ")
 	}
 
 	if count == 0 {
@@ -83,7 +47,7 @@ func CreateUser(db *sql.DB, firstname, lastname string, isAdmin bool) User {
 	id := uuid.New()
 	_, err := db.Exec(insertUser, id, firstname, lastname, isAdmin)
 	if err != nil {
-		log.Error().Err(err).Msg("Error inserting user")
+		log.Fatal().Err(err).Msg("Error inserting user")
 	}
 	return User{
 		ID:        id,
@@ -206,21 +170,15 @@ func UpdateSessionProgress(db *sql.DB, session HydratedSession) error {
 }
 
 // CheckUserExists returns whether a given token maps to an existing user or not.
-func CheckUserExists(db *sql.DB, token string, shouldBeAdmin bool) bool {
-	var query string
-	var exists bool
-	if !shouldBeAdmin {
-		query = `SELECT EXISTS(SELECT 1 FROM users WHERE id = $1)`
-	} else {
-		query = `SELECT EXISTS(SELECT 1 FROM users WHERE id = $1 AND is_admin = true)`
-	}
+func CheckUserExists(db *sql.DB, token string) (exists, isAdmin bool) {
+	query := `SELECT is_admin FROM users WHERE id = $1`
 	row := db.QueryRow(query, token)
-	err := row.Scan(&exists)
+	err := row.Scan(&isAdmin)
 
 	if err != nil {
 		fmt.Printf("%v\n", err)
-		return false
+		return
 	}
-
-	return exists
+	exists = true
+	return
 }

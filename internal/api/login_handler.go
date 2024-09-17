@@ -29,14 +29,14 @@ func setCookie(token string, w http.ResponseWriter) {
 }
 
 // Login is the HandlerFunc for the /login endpoint. Parses the token from the form and checks if that user exists.
-func (h *DBHandler) Login(w http.ResponseWriter, r *http.Request) {
+func (h *HandlerStruct) Login(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	token, err := parseRequestForm(w, r)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to parse token")
 		return
 	}
-	exists := storage.CheckUserExists(h.DB, token, false)
+	exists, _ := storage.CheckUserExists(h.DB, token)
 
 	if !exists {
 		log.Error().Msg("Token not recognized")

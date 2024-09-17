@@ -1,15 +1,15 @@
 ApplicationTitle = "gourd" # Main title for the application
 ApplicationSubtitle = "Online Assessment" # Subtitle for the Application
 LogoPath = "../custom/logo.png" # Local path to a logo shown on the login mask
-ServerPort = 8080 # Port to run the server on
+ServerPort = 8081 # Port to run the server on
 
 # Database configuration
 [DB]
-Password = "pwd"
-User = "local"
-Name = "gourd_db"
+Password = "password"
+User = "user"
+Name = "testdb"
 Host = "localhost"
-Port = "5432"
+Port = "5433"
 
 # Sources array
 [[Sources]]

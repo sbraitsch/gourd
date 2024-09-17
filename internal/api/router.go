@@ -1,37 +1,20 @@
-package setup
+package api
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"gourd/internal"
-	"gourd/internal/api"
 	"gourd/internal/common"
 	gourdMW "gourd/internal/middleware"
-	"gourd/internal/storage"
 	"io"
 	"net/http"
 	"path/filepath"
 	"strings"
 )
 
-// Init establishes the database connection, creates tables(to be refactored to use migrations), middleware and routers.
-func Init() (*chi.Mux, *sql.DB) {
-	db := storage.ConnectDB()
-	storage.CreateTable(db)
-
-	authMW := gourdMW.AuthMiddleware{DB: db}
-
-	dbHandler := api.DBHandler{DB: db}
-	protectedRouter := configureProtectedRouter(&authMW, dbHandler)
-	adminRouter := configureAdminRouter(&authMW, dbHandler)
-	router := configureMainRouter(protectedRouter, adminRouter, dbHandler)
-	return router, db
-}
-
-// Configures the main router.
-func configureMainRouter(protectedRouter, adminRouter *chi.Mux, handler api.DBHandler) *chi.Mux {
+// ConfigureMainRouter configures the main router and its routes.
+func ConfigureMainRouter(protectedRouter, adminRouter *chi.Mux, handler HandlerStruct) *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Use(middleware.Recoverer)
@@ -75,8 +58,8 @@ func configureMainRouter(protectedRouter, adminRouter *chi.Mux, handler api.DBHa
 	return router
 }
 
-// Configures the router protecting admin routes.
-func configureAdminRouter(authMW *gourdMW.AuthMiddleware, handler api.DBHandler) *chi.Mux {
+// ConfigureAdminRouter configures the router protecting admin routes.
+func ConfigureAdminRouter(authMW *gourdMW.AuthMiddleware, handler HandlerStruct) *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(authMW.AuthenticationBasic)
 	router.Use(authMW.AuthenticationAdmin)
@@ -85,8 +68,8 @@ func configureAdminRouter(authMW *gourdMW.AuthMiddleware, handler api.DBHandler)
 	return router
 }
 
-// Configures the router protecting all routes requiring auth.
-func configureProtectedRouter(authMW *gourdMW.AuthMiddleware, handler api.DBHandler) *chi.Mux {
+// ConfigureProtectedRouter Configures the router protecting all routes requiring auth.
+func ConfigureProtectedRouter(authMW *gourdMW.AuthMiddleware, handler HandlerStruct) *chi.Mux {
 	router := chi.NewRouter()
 	router.Use(authMW.AuthenticationBasic)
 

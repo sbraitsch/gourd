@@ -13,7 +13,7 @@ type Session struct {
 	CurrentStep int          `json:"step"`
 	MaxProgress int          `json:"max_progress"`
 	Repo        string       `json:"repo"`
-	Started     sql.NullTime `json:"started, omitempty"`
+	Started     sql.NullTime `json:"started,omitempty"`
 	Submitted   sql.NullTime `json:"submitted,omitempty"`
 	Timelimit   int          `json:"timelimit"`
 }

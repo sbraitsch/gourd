@@ -18,7 +18,7 @@ Run `make serve` from the directory root.
 
 Everything is configured through a `config.toml` that you have to pass to the `gourd serve` command.
 
-An [example configuration](config_example.toml):
+An [example configuration](config_test.toml):
 
 ```toml
 ApplicationTitle = "gourd" # Main title for the application

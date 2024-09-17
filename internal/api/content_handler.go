@@ -9,7 +9,7 @@ import (
 )
 
 // GetContent is the HandlerFunc for the generic /api/content endpoint that checks the content to serve based on the type of user.
-func (h *DBHandler) GetContent(w http.ResponseWriter, r *http.Request) {
+func (h *HandlerStruct) GetContent(w http.ResponseWriter, r *http.Request) {
 	isAdmin := middleware.GetAdminStatusFromContext(r.Context())
 	if !isAdmin {
 		token := middleware.GetTokenFromContext(r.Context())

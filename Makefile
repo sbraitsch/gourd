@@ -16,4 +16,8 @@ clean:
 	@echo "Cleaning up..."
 	rm -f $(APP_NAME)
 
+test:
+	@echo "Running tests..."
+	ginkgo ./...
+
 .PHONY: build generate serve clean

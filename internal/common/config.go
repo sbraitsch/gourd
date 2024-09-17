@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"net/url"
+	"os"
 	"strings"
 )
 
@@ -71,4 +72,13 @@ func GetActiveConfig() *Config {
 // SetActiveConfig sets the active config.
 func SetActiveConfig(cfg *Config) {
 	activeConfig = cfg
+}
+
+func IsTestEnvironment() bool {
+	for _, arg := range os.Args {
+		if strings.HasPrefix(arg, "-test") {
+			return true
+		}
+	}
+	return false
 }

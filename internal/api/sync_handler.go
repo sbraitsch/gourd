@@ -10,7 +10,7 @@ import (
 )
 
 // SyncProgress is the HandlerFunc for the /api/sync endpoint that synchronizes client side input with the local backend repository.
-func (h *DBHandler) SyncProgress(w http.ResponseWriter, r *http.Request) {
+func (h *HandlerStruct) SyncProgress(w http.ResponseWriter, r *http.Request) {
 	token := middleware.GetTokenFromContext(r.Context())
 	err := r.ParseForm()
 	if err != nil {

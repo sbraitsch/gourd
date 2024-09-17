@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/viper"
 	"gourd/internal/common"
 	"gourd/internal/git_ops"
+	"path/filepath"
+	"strings"
 )
 
 // LoadConfig loads the config from the given filepath into the active config struct using viper.
@@ -40,9 +42,15 @@ func LoadConfig(cfgPath string) {
 
 // loadLocalConfig sets up viper and reads the specified config in.
 func loadLocalConfig(cfgPath string) {
-	viper.SetConfigName("config")
-	viper.SetConfigType("toml")
-	viper.AddConfigPath(cfgPath)
+	filenameWithExt := filepath.Base(cfgPath)
+	extWithDot := filepath.Ext(cfgPath)
+	filename := strings.TrimSuffix(filenameWithExt, extWithDot)
+	path := filepath.Dir(cfgPath)
+	ext := strings.TrimPrefix(extWithDot, ".")
+
+	viper.SetConfigName(filename)
+	viper.SetConfigType(ext)
+	viper.AddConfigPath(path)
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Error().Err(err).Msgf("Error loading config")
